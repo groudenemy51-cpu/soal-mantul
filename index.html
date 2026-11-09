@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Al-Minhaj Smart Exam Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Parser File (PDF & DOCX) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <!-- Generator Unduh PDF Langsung -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-amiri { font-family: 'Amiri', serif; }
+    .rtl-text { direction: rtl; text-align: right; }
+    .ltr-text { direction: ltr; text-align: left; }
+    
+    /* Mencegah butir soal dan baris tabel terpotong di tengah halaman PDF/cetak */
+    .avoid-break {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #printArea, #printArea * { visibility: visible; }
+      #printArea { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 10mm; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Header Aplikasi -->
+  <header class="bg-emerald-900 text-white shadow-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center p-1 shadow">
+          <span class="text-emerald-900 font-bold text-xs leading-tight text-center">SMA<br>MINHAJ</span>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight tracking-wide">Al-Minhaj Smart Exam Generator</h1>
+          <p class="text-xs text-emerald-200">Soal • LJK • Kunci Jawaban • Kisi-Kisi • Analisis Kualitatif (AK)</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <button id="btnQuickDemo" type="button" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-900 text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5">
+          <span>✨ Muat Contoh Cepat</span>
+        </button>
+        <button id="btnOpenApiModal" type="button" class="px-3 py-1.5 bg-emerald-800 hover:bg-emerald-700 text-xs font-medium rounded-lg border border-emerald-600 shadow transition flex items-center gap-1.5">
+          <span id="apiKeyStatusDot" class="w-2 h-2 rounded-full bg-rose-400"></span>
+          <span id="apiKeyStatusText">Set API Key</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Container Konten Utama -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <!-- Panel Kiri: Form Konfigurasi & Upload Materi -->
+    <section class="lg:col-span-5 flex flex-col gap-5">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+        <h2 class="text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100 flex items-center justify-between">
+          <span>Pengaturan Soal & AI</span>
+          <span class="text-xs font-normal text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">PSAS 2026/2027</span>
+        </h2>
+
+        <div class="space-y-4 text-xs">
+          <!-- Pilihan Model Gemini -->
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1.5">Model Gemini</label>
+            <div class="grid grid-cols-1 gap-2" id="modelSelectionContainer">
+              <label class="flex items-center justify-between p-2.5 rounded-lg border border-emerald-500 bg-emerald-50/50 cursor-pointer hover:border-emerald-600 transition">
+                <div class="flex items-center gap-2.5">
+                  <input type="radio" name="geminiModel" value="gemini-3.8-flash" checked class="text-emerald-700 focus:ring-emerald-600">
+                  <div>
+                    <div class="font-bold text-slate-900">3.8 Flash</div>
+                    <div class="text-[11px] text-slate-500">Bantuan serbaguna</div>
+                  </div>
+                </div>
+                <span class="text-xs text-emerald-700 font-semibold bg-emerald-100 px-2 py-0.5 rounded-full">Rekomendasi</span>
+              </label>
+
+              <label class="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-50 transition">
+                <div class="flex items-center gap-2.5">
+                  <input type="radio" name="geminiModel" value="gemini-3.5-flash-lite" class="text-emerald-700 focus:ring-emerald-600">
+                  <div>
+                    <div class="font-bold text-slate-900">3.5 Flash-Lite</div>
+                    <div class="text-[11px] text-slate-500">Jawaban tercepat</div>
+                  </div>
+                </div>
+              </label>
+
+              <label class="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-50 transition">
+                <div class="flex items-center gap-2.5">
+                  <input type="radio" name="geminiModel" value="gemini-3.1-pro" class="text-emerald-700 focus:ring-emerald-600">
+                  <div>
+                    <div class="font-bold text-slate-900">3.1 Pro</div>
+                    <div class="text-[11px] text-slate-500">Penalaran yang canggih</div>
+                  </div>
+                </div>
+              </label>
+
+              <label class="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-50 transition">
+                <div class="flex items-center gap-2.5">
+                  <input type="radio" name="geminiModel" value="gemini-4-argon" class="text-emerald-700 focus:ring-emerald-600">
+                  <div>
+                    <div class="font-bold text-slate-900">4 Argon</div>
+                    <div class="text-[11px] text-slate-500">Tugas kompleks</div>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Tingkat Penalaran -->
+          <div>
+            <label for="reasoningLevel" class="block font-semibold text-slate-700 mb-1">Tingkat Penalaran</label>
+            <select id="reasoningLevel" class="w-full rounded-lg border-slate-300 border p-2 bg-slate-50 text-slate-800 focus:ring-emerald-600 focus:border-emerald-600">
+              <option value="high" selected>Tinggi (Analisis mendalam, kisi-kisi & telaah akurat)</option>
+              <option value="medium">Sedang (Seimbang antara kecepatan & elaborasi)</option>
+              <option value="low">Rendah (Paling ringkas & cepat)</option>
+            </select>
+          </div>
+
+          <!-- Bahasa Pengantar -->
+          <div>
+            <label for="inputLanguage" class="block font-semibold text-slate-700 mb-1">Bahasa Pengantar & Soal</label>
+            <select id="inputLanguage" class="w-full rounded-lg border-slate-300 border p-2 bg-slate-50 text-slate-800 focus:ring-emerald-600 focus:border-emerald-600">
+              <option value="arab">Full Bahasa Arab (Khas Dhiniyyah)</option>
+              <option value="arab-indo" selected>Campuran Arab - Indonesia</option>
+              <option value="indo">Bahasa Indonesia</option>
+              <option value="inggris">Bahasa Inggris</option>
+            </select>
+          </div>
+
+          <!-- Komposisi Butir Soal -->
+          <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+            <span class="block font-semibold text-slate-700">Komposisi Butir Soal</span>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label for="countPg" class="block text-slate-500 text-[11px] mb-0.5">Pilihan Ganda</label>
+                <input type="number" id="countPg" min="1" max="50" value="15" class="w-full rounded border-slate-300 border p-1.5 text-center font-bold text-slate-800">
+              </div>
+              <div>
+                <label for="countBs" class="block text-slate-500 text-[11px] mb-0.5">Benar / Salah</label>
+                <input type="number" id="countBs" min="0" max="30" value="10" class="w-full rounded border-slate-300 border p-1.5 text-center font-bold text-slate-800">
+              </div>
+              <div>
+                <label for="countEsai" class="block text-slate-500 text-[11px] mb-0.5">Esai / Uraian</label>
+                <input type="number" id="countEsai" min="0" max="20" value="5" class="w-full rounded border-slate-300 border p-1.5 text-center font-bold text-slate-800">
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-500 italic text-right">Total Soal: <span id="totalQuestionDisplay" class="font-bold text-emerald-700">30</span> butir</p>
+          </div>
+
+          <!-- Identitas Mata Pelajaran & Ujian -->
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label for="subjectName" class="block font-semibold text-slate-700 mb-0.5">Mata Pelajaran</label>
+              <input type="text" id="subjectName" value="Akidah" class="w-full rounded-lg border-slate-300 border p-2 text-slate-800">
+            </div>
+            <div>
+              <label for="targetClass" class="block font-semibold text-slate-700 mb-0.5">Kelas / Jurusan</label>
+              <input type="text" id="targetClass" value="X A" class="w-full rounded-lg border-slate-300 border p-2 text-slate-800">
+            </div>
+            <div>
+              <label for="teacherName" class="block font-semibold text-slate-700 mb-0.5">Guru Penyusun</label>
+              <input type="text" id="teacherName" value="Achmad Fauzan Muslim" class="w-full rounded-lg border-slate-300 border p-2 text-slate-800">
+            </div>
+            <div>
+              <label for="reviewerName" class="block font-semibold text-slate-700 mb-0.5">Guru Penelaah (Verifikator)</label>
+              <input type="text" id="reviewerName" value="Dr. Khalid Yahya Al-Mahdali, MA" class="w-full rounded-lg border-slate-300 border p-2 text-slate-800">
+            </div>
+          </div>
+
+          <!-- Upload Berkas & Input Materi -->
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Materi Ujian (Upload Dokumen atau Tempel Teks)</label>
+            <div id="dropZone" class="border-2 border-dashed border-slate-300 hover:border-emerald-600 rounded-lg p-3 text-center cursor-pointer bg-slate-50 transition">
+              <input type="file" id="fileInput" accept=".pdf,.docx,.txt" class="hidden">
+              <div class="flex flex-col items-center justify-center gap-1">
+                <span class="text-xl">📄</span>
+                <span class="font-medium text-slate-700 text-xs">Klik untuk upload file PDF, DOCX, atau TXT</span>
+                <span id="fileNameDisplay" class="text-[11px] text-slate-500">Maksimal 20MB</span>
+              </div>
+            </div>
+            <textarea id="materialText" rows="4" class="w-full mt-2 rounded-lg border-slate-300 border p-2 text-xs text-slate-800 font-mono" placeholder="Atau paste ringkasan silabus / materi langsung di sini..."></textarea>
+          </div>
+
+          <!-- Tombol Generate Utama -->
+          <button id="btnGenerate" type="button" class="w-full py-3 bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white font-bold rounded-lg shadow-md transition flex items-center justify-center gap-2 text-sm">
+            <span>🚀 Generate Soal, LJK, KJ, Kisi-Kisi & AK</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Panel Kanan: Hasil & Tab Ekspor -->
+    <section class="lg:col-span-7 flex flex-col gap-4">
+      <!-- Toolbar Tab Dokumen -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div class="flex flex-wrap gap-1" id="tabGroup">
+          <button type="button" data-tab="tabSoal" class="tab-btn px-3 py-1.5 rounded-lg font-semibold bg-emerald-800 text-white">1. Naskah Soal</button>
+          <button type="button" data-tab="tabLjk" class="tab-btn px-3 py-1.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200">2. LJK</button>
+          <button type="button" data-tab="tabKj" class="tab-btn px-3 py-1.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200">3. Kunci Jawaban</button>
+          <button type="button" data-tab="tabKisi" class="tab-btn px-3 py-1.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200">4. Kisi-Kisi</button>
+          <button type="button" data-tab="tabAk" class="tab-btn px-3 py-1.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200">5. Analisis AK</button>
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <button id="btnCopyTab" type="button" title="Salin Teks" class="p-1.5 rounded border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs flex items-center gap-1">
+            <span>📋 Salin</span>
+          </button>
+          <button id="btnPrint" type="button" title="Dialog Cetak Browser" class="p-1.5 rounded border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs flex items-center gap-1">
+            <span>🖨️ Print</span>
+          </button>
+          <button id="btnDownloadPdf" type="button" title="Unduh Langsung PDF Tanpa Dialog Cetak" class="px-2.5 py-1.5 rounded bg-rose-700 hover:bg-rose-800 text-white text-xs font-semibold flex items-center gap-1">
+            <span>📄 Unduh PDF</span>
+          </button>
+          <button id="btnDownloadDoc" type="button" title="Unduh File Word" class="px-2.5 py-1.5 rounded bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold flex items-center gap-1">
+            <span>📥 Word (.doc)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Area Output Dokumen Sesuai Format Template Sekolah -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 min-h-[600px] text-slate-900 overflow-x-auto" id="printArea">
+        <div id="outputContent" class="space-y-6">
+          <div class="text-center py-20 text-slate-400">
+            <span class="text-4xl block mb-2">📑</span>
+            <p class="text-sm font-medium">Belum ada dokumen yang di-generate.</p>
+            <p class="text-xs text-slate-400 mt-1">Masukkan materi lalu klik tombol generate atau klik "Muat Contoh Cepat".</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal Konfigurasi API Key -->
+  <div id="apiModal" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-bold text-slate-900 text-base">Konfigurasi Gemini API Key</h3>
+        <button id="btnCloseApiModal" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <p class="text-xs text-slate-600 leading-relaxed">
+        Masukkan API Key Google AI Studio Anda. Kunci ini hanya disimpan di peramban (Local Storage) dan dipanggil langsung ke server Google AI.
+      </p>
+      <div>
+        <label for="apiKeyInput" class="block text-xs font-semibold text-slate-700 mb-1">API Key</label>
+        <input type="password" id="apiKeyInput" placeholder="AIzaSy..." class="w-full rounded-lg border border-slate-300 p-2.5 text-xs font-mono">
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="btnClearApiKey" class="px-3 py-2 text-xs text-rose-600 hover:bg-rose-50 rounded-lg">Hapus Key</button>
+        <button id="btnSaveApiKey" class="px-4 py-2 text-xs bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-lg shadow">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Dialog Alert & Error -->
+  <div id="alertModal" class="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full p-5 space-y-3">
+      <div class="flex items-center gap-3">
+        <div id="alertIcon" class="w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-base">!</div>
+        <h4 id="alertTitle" class="font-bold text-slate-900 text-sm">Pemberitahuan</h4>
+      </div>
+      <p id="alertMessage" class="text-xs text-slate-600 leading-relaxed"></p>
+      <div class="flex justify-end pt-2">
+        <button id="btnCloseAlert" class="px-4 py-1.5 text-xs bg-slate-800 hover:bg-slate-900 text-white font-medium rounded-lg">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logika Aplikasi (JavaScript) -->
+  <script>
+    const APP_STATE = {
+      apiKey: localStorage.getItem('GEMINI_API_KEY') || '',
+      activeTab: 'tabSoal',
+      generatedData: null
+    };
+
+    function showAlert(title, message, isError = true) {
+      const modal = document.getElementById('alertModal');
+      const titleEl = document.getElementById('alertTitle');
+      const msgEl = document.getElementById('alertMessage');
+      const iconEl = document.getElementById('alertIcon');
+      
+      if (titleEl) titleEl.textContent = title;
+      if (msgEl) msgEl.textContent = message;
+      if (iconEl) {
+        iconEl.className = isError 
+          ? "w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-base"
+          : "w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-base";
+        iconEl.textContent = isError ? '!' : '✓';
+      }
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function updateApiKeyStatus() {
+      const dot = document.getElementById('apiKeyStatusDot');
+      const text = document.getElementById('apiKeyStatusText');
+      if (APP_STATE.apiKey && APP_STATE.apiKey.trim().length > 5) {
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-emerald-400";
+        if (text) text.textContent = "API Key Aktif";
+      } else {
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-rose-400";
+        if (text) text.textContent = "Set API Key";
+      }
+    }
+
+    function safeGetValue(id, fallback = '') {
+      const el = document.getElementById(id);
+      return el && el.value !== undefined ? el.value : fallback;
+    }
+
+    function getSelectedModel() {
+      const checked = document.querySelector('input[name="geminiModel"]:checked');
+      return checked ? checked.value : 'gemini-3.8-flash';
+    }
+
+    function updateTotalCount() {
+      const pg = parseInt(safeGetValue('countPg', 15)) || 0;
+      const bs = parseInt(safeGetValue('countBs', 10)) || 0;
+      const es = parseInt(safeGetValue('countEsai', 5)) || 0;
+      const display = document.getElementById('totalQuestionDisplay');
+      if (display) display.textContent = pg + bs + es;
+    }
+
+    ['countPg', 'countBs', 'countEsai'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', updateTotalCount);
+    });
+
+    // File Upload Handler (PDF, DOCX, TXT)
+    const fileInput = document.getElementById('fileInput');
+    const dropZone = document.getElementById('dropZone');
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const materialText = document.getElementById('materialText');
+
+    if (dropZone && fileInput) {
+      dropZone.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        fileNameDisplay.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+        
+        try {
+          if (file.name.endsWith('.txt')) {
+            const text = await file.text();
+            materialText.value = text;
+          } else if (file.name.endsWith('.docx')) {
+            const arrayBuffer = await file.arrayBuffer();
+            const result = await mammoth.extractRawText({ arrayBuffer });
+            materialText.value = result.value;
+          } else if (file.name.endsWith('.pdf')) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let fullText = '';
+            for (let i = 1; i <= Math.min(pdf.numPages, 15); i++) {
+              const page = await pdf.getPage(i);
+              const content = await page.getTextContent();
+              fullText += content.items.map(item => item.str).join(' ') + '\n';
+            }
+            materialText.value = fullText;
+          }
+        } catch (err) {
+          showAlert("Gagal Membaca File", "Terjadi kesalahan saat membaca file: " + err.message);
+        }
+      });
+    }
+
+    // Modal API Key Events
+    document.getElementById('btnOpenApiModal')?.addEventListener('click', () => {
+      const input = document.getElementById('apiKeyInput');
+      if (input) input.value = APP_STATE.apiKey;
+      document.getElementById('apiModal')?.classList.remove('hidden');
+    });
+
+    document.getElementById('btnCloseApiModal')?.addEventListener('click', () => {
+      document.getElementById('apiModal')?.classList.add('hidden');
+    });
+
+    document.getElementById('btnCloseAlert')?.addEventListener('click', () => {
+      document.getElementById('alertModal')?.classList.add('hidden');
+    });
+
+    document.getElementById('btnSaveApiKey')?.addEventListener('click', () => {
+      const val = safeGetValue('apiKeyInput').trim();
+      APP_STATE.apiKey = val;
+      localStorage.setItem('GEMINI_API_KEY', val);
+      updateApiKeyStatus();
+      document.getElementById('apiModal')?.classList.add('hidden');
+      showAlert("Tersimpan", "API Key Gemini berhasil disimpan.", false);
+    });
+
+    document.getElementById('btnClearApiKey')?.addEventListener('click', () => {
+      APP_STATE.apiKey = '';
+      localStorage.removeItem('GEMINI_API_KEY');
+      const input = document.getElementById('apiKeyInput');
+      if (input) input.value = '';
+      updateApiKeyStatus();
+      document.getElementById('apiModal')?.classList.add('hidden');
+      showAlert("Dihapus", "API Key Gemini telah dihapus.", false);
+    });
+
+    // Dummy Cepat
+    document.getElementById('btnQuickDemo')?.addEventListener('click', () => {
+      materialText.value = `Ringkasan Materi Pelajaran Akidah Kelas X SMA Al-Minhaj:
+1. Makna Ibadah secara bahasa dan syariat: Segala sesuatu yang dicintai dan diridhai Allah baik ucapan maupun perbuatan yang tampak maupun tersembunyi.
+2. Syarat diterimanya ibadah: Ikhlas karena Allah dan Ittiba' kepada Rasulullah shallallahu 'alaihi wa sallam.
+3. Pembagian Tauhid: Rububiyyah (mentauhidkan Allah dalam perbuatan-Nya), Uluhiyyah (mentauhidkan Allah dalam perbuatan hamba), Asma' wa Shifat (menetapkan nama dan sifat Allah tanpa tahrif, ta'thil, takyif, dan tamtsil).
+4. Bahaya dan jenis-jenis Syirik Akbar dan Syirik Ashghar (seperti Riya').
+5. Dalil-dalil pokok dari Al-Qur'an dan Sunnah tentang kewajiban mengikhlaskan agama semata-mata bagi Allah.`;
+
+      APP_STATE.generatedData = generateFallbackExamData({
+        subject: safeGetValue('subjectName', 'Akidah'),
+        grade: safeGetValue('targetClass', 'X A'),
+        teacher: safeGetValue('teacherName', 'Achmad Fauzan Muslim'),
+        reviewer: safeGetValue('reviewerName', 'Dr. Khalid Yahya Al-Mahdali, MA'),
+        lang: safeGetValue('inputLanguage', 'arab-indo')
+      });
+      renderActiveTab();
+      showAlert("Sukses", "Data contoh berhasil dimuat sesuai template SMA Al-Minhaj!", false);
+    });
+
+    // Tombol Generate Utama
+    document.getElementById('btnGenerate')?.addEventListener('click', async () => {
+      const material = safeGetValue('materialText').trim();
+      if (!material) {
+        showAlert("Materi Kosong", "Silakan upload berkas atau masukkan ringkasan materi pelajaran terlebih dahulu.");
+        return;
+      }
+
+      if (!APP_STATE.apiKey) {
+        showAlert("API Key Diperlukan", "Silakan klik tombol 'Set API Key' di pojok kanan atas untuk memasukkan Gemini API Key Anda.");
+        return;
+      }
+
+      const btn = document.getElementById('btnGenerate');
+      const origText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="animate-spin text-lg">⏳</span> Memproses dengan Gemini AI...`;
+
+      try {
+        const payload = {
+          subject: safeGetValue('subjectName', 'Akidah'),
+          grade: safeGetValue('targetClass', 'X A'),
+          teacher: safeGetValue('teacherName', 'Achmad Fauzan Muslim'),
+          reviewer: safeGetValue('reviewerName', 'Dr. Khalid Yahya Al-Mahdali, MA'),
+          lang: safeGetValue('inputLanguage', 'arab-indo'),
+          model: getSelectedModel(),
+          reasoning: safeGetValue('reasoningLevel', 'high'),
+          pgCount: parseInt(safeGetValue('countPg', 15)) || 15,
+          bsCount: parseInt(safeGetValue('countBs', 10)) || 10,
+          esaiCount: parseInt(safeGetValue('countEsai', 5)) || 5,
+          material: material
+        };
+
+        const result = await callGeminiAPI(payload);
+        APP_STATE.generatedData = result;
+        renderActiveTab();
+        showAlert("Berhasil", "Naskah Soal, LJK, Kunci Jawaban, Kisi-Kisi, dan Analisis Kualitatif telah siap!", false);
+      } catch (err) {
+        console.error(err);
+        showAlert("Gagal Generate", err.message || "Terjadi kesalahan saat memanggil Gemini API.");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origText;
+      }
+    });
+
+    // Pemanggilan API Gemini Resmi (Menggunakan model pilihan langsung)
+    async function callGeminiAPI(config) {
+      const selectedModel = config.model || 'gemini-3.8-flash';
+      const apiModelEndpoint = selectedModel.replace(/^models\//, '');
+
+      const prompt = `Anda adalah pakar kurikulum dan penyusun evaluasi penilaian SMA Al-Minhaj Bogor.
+Tugas Anda adalah menyusun dokumen PSAS TA 2026/2027 secara lengkap dengan format JSON murni.
+
+Kriteria Dokumen:
+- Mata Pelajaran: ${config.subject}
+- Kelas: ${config.grade}
+- Guru Penyusun: ${config.teacher}
+- Penelaah: ${config.reviewer}
+- Mode Bahasa: ${config.lang} (Jika Arab/Arab-Indo, berikan harakat yang tepat pada istilah dan soal syar'i)
+- Komposisi: Tepat ${config.pgCount} Soal PG (opsi A-E / أ-ه), tepat ${config.bsCount} Soal Benar/Salah (Pernyataan), dan tepat ${config.esaiCount} Soal Esai.
+- Referensi Materi:
+${config.material.substring(0, 5000)}
+
+Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
+{
+  "meta": { "subject": "${config.subject}", "grade": "${config.grade}", "year": "2026/2027", "semester": "1", "time": "120 Menit" },
+  "pg": [
+    { "no": 1, "question": "teks butir soal...", "options": ["A. opsi", "B. opsi", "C. opsi", "D. opsi", "E. opsi"], "answer": "أ / A", "indicator": "Indikator soal..." }
+  ],
+  "bs": [
+    { "no": 1, "statement": "teks pernyataan...", "answer": "✓ / ✘", "indicator": "Indikator pernyataan..." }
+  ],
+  "esai": [
+    { "no": 1, "question": "teks pertanyaan esai...", "answer": "panduan jawaban lengkap...", "indicator": "Indikator esai..." }
+  ],
+  "kisi_kisi": [
+    { "no": 1, "materi": "Materi...", "indikator": "Indikator...", "no_soal": 1, "bentuk": "PG" }
+  ],
+  "analisis_kualitatif": {
+    "kaidah_materi": "Materi selaras dengan silabus kurikulum dan tujuan pembelajaran.",
+    "kaidah_konstruksi": "Pokok soal dirumuskan dengan tegas, jelas, dan pilihan jawaban homogen.",
+    "kaidah_bahasa": "Kaidah tata bahasa, ejaan, dan peristilahan syar'i tepat.",
+    "catatan_revisi": "Naskah soal telah diverifikasi dan siap diujikan."
+  }
+}`;
+
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${apiModelEndpoint}:generateContent?key=${APP_STATE.apiKey}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: "application/json"
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || `HTTP error ${response.status}`);
+      }
+
+      const resJson = await response.json();
+      const rawText = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawText) throw new Error("Tidak menerima respons dari API Google Gemini.");
+      
+      const cleanJson = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+      return JSON.parse(cleanJson);
+    }
+
+    // Render Tampilan Tab Dokumen
+    function renderActiveTab() {
+      const container = document.getElementById('outputContent');
+      if (!container || !APP_STATE.generatedData) return;
+
+      const d = APP_STATE.generatedData;
+      const isArabic = safeGetValue('inputLanguage').includes('arab');
+      const fontClass = isArabic ? 'font-amiri text-base leading-relaxed' : 'text-sm';
+      const alignClass = isArabic ? 'rtl-text' : 'ltr-text';
+
+      let html = '';
+
+      if (APP_STATE.activeTab === 'tabSoal') {
+        html = `
+          <div class="border-b-2 border-slate-900 pb-3 mb-4 text-center avoid-break">
+            <h3 class="font-bold text-base tracking-wider uppercase">SMA AL MINHAJ</h3>
+            <h4 class="font-bold text-sm tracking-wide">PENILAIAN SUMATIF AKHIR SEMESTER (PSAS)</h4>
+            <p class="text-xs text-slate-600">TAHUN PELAJARAN 2026/2027</p>
+          </div>
+
+          <table class="w-full text-xs mb-4 avoid-break">
+            <tr>
+              <td class="w-28 font-semibold py-0.5">Mata Pelajaran</td>
+              <td class="w-3">:</td>
+              <td>${d.meta?.subject || safeGetValue('subjectName')}</td>
+              <td class="w-24 font-semibold">Hari / Tanggal</td>
+              <td class="w-3">:</td>
+              <td>...................</td>
+            </tr>
+            <tr>
+              <td class="font-semibold py-0.5">Kelas</td>
+              <td>:</td>
+              <td>${d.meta?.grade || safeGetValue('targetClass')}</td>
+              <td class="font-semibold">Waktu</td>
+              <td>:</td>
+              <td>120 Menit</td>
+            </tr>
+            <tr>
+              <td class="font-semibold py-0.5">Guru Pengampu</td>
+              <td>:</td>
+              <td>${safeGetValue('teacherName')}</td>
+              <td class="font-semibold">Nama Siswa</td>
+              <td>:</td>
+              <td>...................</td>
+            </tr>
+          </table>
+
+          <div class="p-2.5 bg-slate-50 border border-slate-200 rounded text-xs mb-4 avoid-break">
+            <span class="font-bold block mb-1">Petunjuk Umum:</span>
+            <ol class="list-decimal list-inside space-y-0.5 text-slate-700">
+              <li>Berdoalah kepada Allah Ta'ala sebelum memulai mengerjakan soal.</li>
+              <li>Periksa dan bacalah lembar soal dengan teliti sebelum menjawab.</li>
+              <li>Kerjakan soal yang Anda anggap mudah terlebih dahulu.</li>
+              <li>Periksa kembali jawaban Anda sebelum dikumpulkan kepada pengawas.</li>
+            </ol>
+          </div>
+
+          <div class="mb-6">
+            <h4 class="font-bold text-xs uppercase bg-slate-100 p-1.5 border-l-4 border-emerald-700 mb-3 avoid-break">
+              I. PILIHAN GANDA (اخْتِيَارٌ مُتَعَدِّدٌ)
+            </h4>
+            <div class="space-y-4 ${fontClass} ${alignClass}">
+              ${d.pg.map(item => `
+                <div class="avoid-break">
+                  <p class="font-medium mb-1.5"><span class="font-bold">${item.no}.</span> ${item.question}</p>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-1 text-xs pl-4">
+                    ${item.options.map(opt => `<div>${opt}</div>`).join('')}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <h4 class="font-bold text-xs uppercase bg-slate-100 p-1.5 border-l-4 border-emerald-700 mb-3 avoid-break">
+              II. BENAR ATAU SALAH (الصَّحِيْحُ وَ الخَطَأُ)
+            </h4>
+            <p class="text-xs mb-2 italic avoid-break">Berikan tanda centang (✔) pada pernyataan yang benar dan tanda silang (✘) pada pernyataan yang salah!</p>
+            <table class="w-full text-xs border-collapse border border-slate-300">
+              <thead>
+                <tr class="bg-slate-100 avoid-break">
+                  <th class="border border-slate-300 p-1.5 w-10 text-center">No</th>
+                  <th class="border border-slate-300 p-1.5 text-left">Pernyataan / العبارة</th>
+                  <th class="border border-slate-300 p-1.5 w-24 text-center">Jawaban</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${d.bs.map(item => `
+                  <tr class="avoid-break">
+                    <td class="border border-slate-300 p-1.5 text-center font-bold">${item.no}</td>
+                    <td class="border border-slate-300 p-1.5 ${fontClass} ${alignClass}">${item.statement}</td>
+                    <td class="border border-slate-300 p-1.5 text-center"></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mb-6">
+            <h4 class="font-bold text-xs uppercase bg-slate-100 p-1.5 border-l-4 border-emerald-700 mb-3 avoid-break">
+              III. ESAI / URAIAN (الإِجَابَةُ المَقَالِيَّةُ)
+            </h4>
+            <div class="space-y-3 ${fontClass} ${alignClass}">
+              ${d.esai.map(item => `
+                <div class="avoid-break">
+                  <p class="font-medium"><span class="font-bold">${item.no}.</span> ${item.question}</p>
+                  <div class="h-10 border-b border-dotted border-slate-300"></div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } else if (APP_STATE.activeTab === 'tabLjk') {
+        html = `
+          <div class="border-b-2 border-slate-900 pb-2 mb-4 text-center avoid-break">
+            <h3 class="font-bold text-sm tracking-wider uppercase">LEMBAR JAWABAN KOMPUTER / MANUAL (LJK)</h3>
+            <h4 class="font-bold text-xs">SMA AL MINHAJ • PSAS 2026/2027</h4>
+          </div>
+
+          <table class="w-full text-xs mb-4 avoid-break">
+            <tr>
+              <td class="w-24 font-semibold">Nama Siswa</td><td class="w-3">:</td><td>........................................</td>
+              <td class="w-24 font-semibold">Kelas</td><td class="w-3">:</td><td>${safeGetValue('targetClass')}</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Mata Pelajaran</td><td>:</td><td>${safeGetValue('subjectName')}</td>
+              <td class="font-semibold">No. Absen</td><td>:</td><td>...................</td>
+            </tr>
+          </table>
+
+          <div class="mb-5 avoid-break">
+            <h5 class="font-bold text-xs mb-2">Jawaban Pilihan Ganda:</h5>
+            <div class="grid grid-cols-3 gap-3 text-xs">
+              ${[0, 1, 2].map(colIdx => `
+                <table class="w-full border-collapse border border-slate-300">
+                  <tr class="bg-slate-100"><th class="border border-slate-300 p-1">No</th><th colspan="5" class="border border-slate-300 p-1 text-center">Pilihan</th></tr>
+                  ${d.pg.slice(colIdx * 5, (colIdx + 1) * 5).map(item => `
+                    <tr>
+                      <td class="border border-slate-300 p-1 text-center font-bold">${item.no}</td>
+                      <td class="border border-slate-300 p-1 text-center">A</td>
+                      <td class="border border-slate-300 p-1 text-center">B</td>
+                      <td class="border border-slate-300 p-1 text-center">C</td>
+                      <td class="border border-slate-300 p-1 text-center">D</td>
+                      <td class="border border-slate-300 p-1 text-center">E</td>
+                    </tr>
+                  `).join('')}
+                </table>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="mb-5 avoid-break">
+            <h5 class="font-bold text-xs mb-2">Jawaban Benar / Salah:</h5>
+            <table class="w-full text-xs border-collapse border border-slate-300">
+              <tr class="bg-slate-100">
+                <th class="border border-slate-300 p-1 w-12 text-center">No</th>
+                <th class="border border-slate-300 p-1 text-center">Benar (✔)</th>
+                <th class="border border-slate-300 p-1 text-center">Salah (✘)</th>
+              </tr>
+              ${d.bs.map(item => `
+                <tr>
+                  <td class="border border-slate-300 p-1 text-center font-bold">${item.no}</td>
+                  <td class="border border-slate-300 p-1 text-center h-5"></td>
+                  <td class="border border-slate-300 p-1 text-center h-5"></td>
+                </tr>
+              `).join('')}
+            </table>
+          </div>
+
+          <div class="avoid-break">
+            <h5 class="font-bold text-xs mb-2">Jawaban Esai / Uraian:</h5>
+            ${d.esai.map(item => `
+              <div class="mb-3">
+                <span class="text-xs font-bold">${item.no}.</span>
+                <div class="h-12 border-b border-dotted border-slate-400"></div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else if (APP_STATE.activeTab === 'tabKj') {
+        html = `
+          <div class="border-b-2 border-slate-900 pb-2 mb-4 text-center avoid-break">
+            <h3 class="font-bold text-sm tracking-wider uppercase">KUNCI JAWABAN & PEDOMAN PENSKORAN</h3>
+            <h4 class="font-bold text-xs">SMA AL MINHAJ • TA 2026/2027</h4>
+          </div>
+
+          <div class="mb-4 avoid-break">
+            <h5 class="font-bold text-xs mb-2">Kunci Pilihan Ganda:</h5>
+            <table class="w-full text-xs border-collapse border border-slate-300">
+              <tr class="bg-slate-100">
+                ${d.pg.map(item => `<th class="border border-slate-300 p-1 text-center">${item.no}</th>`).join('')}
+              </tr>
+              <tr>
+                ${d.pg.map(item => `<td class="border border-slate-300 p-1 text-center font-bold text-emerald-800">${item.answer}</td>`).join('')}
+              </tr>
+            </table>
+          </div>
+
+          <div class="mb-4 avoid-break">
+            <h5 class="font-bold text-xs mb-2">Kunci Benar / Salah:</h5>
+            <table class="w-full text-xs border-collapse border border-slate-300">
+              <tr class="bg-slate-100">
+                ${d.bs.map(item => `<th class="border border-slate-300 p-1 text-center">${item.no}</th>`).join('')}
+              </tr>
+              <tr>
+                ${d.bs.map(item => `<td class="border border-slate-300 p-1 text-center font-bold">${item.answer}</td>`).join('')}
+              </tr>
+            </table>
+          </div>
+
+          <div class="mb-4">
+            <h5 class="font-bold text-xs mb-2 avoid-break">Rubrik Jawaban Esai:</h5>
+            <div class="space-y-2 text-xs">
+              ${d.esai.map(item => `
+                <div class="p-2 border border-slate-200 rounded bg-slate-50 avoid-break">
+                  <div class="font-bold text-slate-800">Soal No. ${item.no}: ${item.question}</div>
+                  <div class="text-emerald-800 mt-1"><span class="font-semibold">Kunci:</span> ${item.answer}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } else if (APP_STATE.activeTab === 'tabKisi') {
+        html = `
+          <div class="border-b-2 border-slate-900 pb-2 mb-4 text-center avoid-break">
+            <h3 class="font-bold text-sm tracking-wider uppercase">KISI-KISI PENILAIAN SUMATIF AKHIR SEMESTER</h3>
+            <h4 class="font-bold text-xs">SMA AL MINHAJ • TAHUN PELAJARAN 2026/2027</h4>
+          </div>
+
+          <table class="w-full text-xs border-collapse border border-slate-300 mb-6">
+            <thead>
+              <tr class="bg-slate-100 avoid-break">
+                <th class="border border-slate-300 p-2 w-10 text-center">No</th>
+                <th class="border border-slate-300 p-2 text-left">Materi Pokok</th>
+                <th class="border border-slate-300 p-2 text-left">Indikator Soal</th>
+                <th class="border border-slate-300 p-2 w-16 text-center">Bentuk</th>
+                <th class="border border-slate-300 p-2 w-14 text-center">No. Soal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${d.kisi_kisi.map(item => `
+                <tr class="avoid-break">
+                  <td class="border border-slate-300 p-1.5 text-center">${item.no}</td>
+                  <td class="border border-slate-300 p-1.5">${item.materi}</td>
+                  <td class="border border-slate-300 p-1.5">${item.indikator}</td>
+                  <td class="border border-slate-300 p-1.5 text-center font-semibold">${item.bentuk}</td>
+                  <td class="border border-slate-300 p-1.5 text-center">${item.no_soal}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <div class="mt-8 flex justify-between text-xs text-center avoid-break">
+            <div>
+              <p>Mengetahui,</p>
+              <p class="font-bold">Kepala SMA Al Minhaj</p>
+              <div class="h-16"></div>
+              <p class="font-bold underline">M. Rudi Haetami, M.Pd.</p>
+              <p class="text-[10px] text-slate-500">NUPTK. 9659771672130032</p>
+            </div>
+            <div>
+              <p>Bogor, 30 Agustus 2026</p>
+              <p class="font-bold">Guru Penyusun,</p>
+              <div class="h-16"></div>
+              <p class="font-bold underline">${safeGetValue('teacherName')}</p>
+              <p class="text-[10px] text-slate-500">NUPTK. -</p>
+            </div>
+          </div>
+        `;
+      } else if (APP_STATE.activeTab === 'tabAk') {
+        html = `
+          <div class="border-b-2 border-slate-900 pb-2 mb-4 text-center avoid-break">
+            <h3 class="font-bold text-sm tracking-wider uppercase">INSTRUMEN ANALISIS KUALITATIF (AK) TELAAH NASKAH SOAL</h3>
+            <h4 class="font-bold text-xs">VERIFIKASI & PEER REVIEW TELAAH SILANG GURU DHINIYYAH</h4>
+          </div>
+
+          <table class="w-full text-xs mb-4 avoid-break">
+            <tr>
+              <td class="w-32 font-semibold">Guru Penyusun</td><td class="w-3">:</td><td>${safeGetValue('teacherName')}</td>
+              <td class="w-32 font-semibold">Guru Penelaah</td><td class="w-3">:</td><td>${safeGetValue('reviewerName')}</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Mata Pelajaran</td><td>:</td><td>${safeGetValue('subjectName')}</td>
+              <td class="font-semibold">Kelas</td><td>:</td><td>${safeGetValue('targetClass')}</td>
+            </tr>
+          </table>
+
+          <table class="w-full text-xs border-collapse border border-slate-300 mb-4">
+            <thead>
+              <tr class="bg-slate-100 avoid-break">
+                <th class="border border-slate-300 p-2 w-10 text-center">No</th>
+                <th class="border border-slate-300 p-2 text-left">Aspek / Kriteria Telaah</th>
+                <th class="border border-slate-300 p-2 text-left">Hasil Analisis AI & Verifikator</th>
+                <th class="border border-slate-300 p-2 w-20 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="avoid-break">
+                <td class="border border-slate-300 p-2 text-center font-bold">1</td>
+                <td class="border border-slate-300 p-2 font-semibold">Materi & Kesesuaian Kurikulum</td>
+                <td class="border border-slate-300 p-2">${d.analisis_kualitatif?.kaidah_materi || 'Sesuai silabus'}</td>
+                <td class="border border-slate-300 p-2 text-center text-emerald-700 font-bold">Diterima</td>
+              </tr>
+              <tr class="avoid-break">
+                <td class="border border-slate-300 p-2 text-center font-bold">2</td>
+                <td class="border border-slate-300 p-2 font-semibold">Konstruksi Butir Soal</td>
+                <td class="border border-slate-300 p-2">${d.analisis_kualitatif?.kaidah_konstruksi || 'Pokok soal jelas'}</td>
+                <td class="border border-slate-300 p-2 text-center text-emerald-700 font-bold">Diterima</td>
+              </tr>
+              <tr class="avoid-break">
+                <td class="border border-slate-300 p-2 text-center font-bold">3</td>
+                <td class="border border-slate-300 p-2 font-semibold">Bahasa, Kaidah Nahwu, Sharaf & Imla</td>
+                <td class="border border-slate-300 p-2">${d.analisis_kualitatif?.kaidah_bahasa || 'Tata bahasa tepat'}</td>
+                <td class="border border-slate-300 p-2 text-center text-emerald-700 font-bold">Diterima</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="p-3 bg-emerald-50 border border-emerald-200 rounded text-xs avoid-break">
+            <span class="font-bold text-emerald-900 block mb-1">Rekomendasi Hasil Telaah Silang:</span>
+            <p class="text-emerald-800">${d.analisis_kualitatif?.catatan_revisi || 'Naskah soal memenuhi standar mutu dan siap dicetak.'}</p>
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
+    }
+
+    // Switch Tab
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.className = "tab-btn px-3 py-1.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200";
+        });
+        const target = e.currentTarget;
+        target.className = "tab-btn px-3 py-1.5 rounded-lg font-semibold bg-emerald-800 text-white";
+        APP_STATE.activeTab = target.getAttribute('data-tab');
+        renderActiveTab();
+      });
+    });
+
+    // Salin Teks Dokumen
+    document.getElementById('btnCopyTab')?.addEventListener('click', () => {
+      const area = document.getElementById('printArea');
+      if (!area || !APP_STATE.generatedData) {
+        showAlert("Perhatian", "Tidak ada konten yang dapat disalin.");
+        return;
+      }
+      navigator.clipboard.writeText(area.innerText).then(() => {
+        showAlert("Disalin", "Konten berhasil disalin ke clipboard!", false);
+      });
+    });
+
+    // Dialog Print Browser
+    document.getElementById('btnPrint')?.addEventListener('click', () => {
+      if (!APP_STATE.generatedData) {
+        showAlert("Perhatian", "Silakan generate dokumen terlebih dahulu sebelum mencetak.");
+        return;
+      }
+      window.print();
+    });
+
+    // Unduh Langsung PDF Tanpa Dialog Cetak (html2pdf.js)
+    document.getElementById('btnDownloadPdf')?.addEventListener('click', () => {
+      const element = document.getElementById('printArea');
+      if (!element || !APP_STATE.generatedData) {
+        showAlert("Perhatian", "Silakan generate dokumen terlebih dahulu sebelum mengunduh PDF.");
+        return;
+      }
+
+      const subject = safeGetValue('subjectName', 'Soal');
+      const filename = `${subject}_${APP_STATE.activeTab}.pdf`;
+
+      const btn = document.getElementById('btnDownloadPdf');
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span>⏳ Menyimpan...</span>`;
+
+      const opt = {
+        margin: [10, 10, 10, 10], // Margin atas, kiri, bawah, kanan (mm)
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 2, 
+          useCORS: true,
+          logging: false 
+        },
+        jsPDF: { 
+          unit: 'mm', 
+          format: 'a4', 
+          orientation: 'portrait' 
+        },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      };
+
+      html2pdf().set(opt).from(element).save().then(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        showAlert("Berhasil", "File PDF berhasil dibuat dan langsung diunduh!", false);
+      }).catch((err) => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        showAlert("Gagal Mengunduh PDF", err.message || "Terjadi kesalahan saat memproses file PDF.");
+      });
+    });
+
+    // Download Word (.doc)
+    document.getElementById('btnDownloadDoc')?.addEventListener('click', () => {
+      const area = document.getElementById('printArea');
+      if (!area || !APP_STATE.generatedData) {
+        showAlert("Perhatian", "Silakan generate dokumen terlebih dahulu.");
+        return;
+      }
+      const title = `${safeGetValue('subjectName', 'Soal')}_${APP_STATE.activeTab}`;
+      const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' "+
+            "xmlns:w='urn:schemas-microsoft-com:office:word' "+
+            "xmlns='http://www.w3.org/TR/REC-html40'>"+
+            "<head><meta charset='utf-8'><title>Dokumen</title><style>body{font-family: Arial, sans-serif;}</style></head><body>";
+      const footer = "</body></html>";
+      const sourceHTML = header + area.innerHTML + footer;
+      const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+      const fileDownload = document.createElement("a");
+      document.body.appendChild(fileDownload);
+      fileDownload.href = source;
+      fileDownload.download = `${title}.doc`;
+      fileDownload.click();
+      document.body.removeChild(fileDownload);
+    });
+
+    // Generator Fallback Data Contoh Cepat
+    function generateFallbackExamData(cfg) {
+      const pg = [];
+      for (let i = 1; i <= 15; i++) {
+        pg.push({
+          no: i,
+          question: `مَا هُوَ التَّعْرِيْفُ الصَّحِيْحُ لِلْعِبَادَةِ فِي الشَّرِيْعَةِ الإِسْلَامِيَّةِ فِي السُّؤَالِ رَقْم (${i})؟`,
+          options: [
+            "أ. اسْمٌ جَامِعٌ لِكُلِّ مَا يُحِبُّهُ اللهُ وَيَرْضَاهُ",
+            "ب. فِعْلُ المَأْمُوْرَاتِ فَقَطْ دُوْنَ تَرْكِ المَنْهِيَّاتِ",
+            "ج. الصَّلَاةُ وَالصِّيَامُ دُوْنَ غَيْرِهِمَا",
+            "د. مَا يَفْعَلُهُ الإِنْسَانُ بِحَسَبِ عَادَةِ قَوْمِهِ",
+            "ه. اعْتِقَادُ القَلْبِ دُوْنَ حَاجَةٍ إِلَى العَمَلِ"
+          ],
+          answer: "أ",
+          indicator: `Menjelaskan definisi dan hakikat ibadah syar'i butir ke-${i}`
+        });
+      }
+      const bs = [];
+      for (let i = 1; i <= 10; i++) {
+        bs.push({
+          no: i,
+          statement: `مِنْ شُرُوْطِ قَبُوْلِ العَمَلِ الصَّالِحِ عِنْدَ اللهِ تَعَالَى: الإِخْلَاصُ وَالمُتَابَعَةُ لِلرَّسُوْلِ (${i}).`,
+          answer: i % 2 === 0 ? "✓" : "✘",
+          indicator: `Menentukan syarat diterimanya amal ibadah butir ke-${i}`
+        });
+      }
+      const esai = [];
+      for (let i = 1; i <= 5; i++) {
+        esai.push({
+          no: i,
+          question: `اذْكُرْ أَقْسَامَ التَّوْحِيْدِ الثَّلَاثَةَ مَعَ شَرْحٍ مُوْجَزٍ لِكُلِّ قِسْمٍ (${i})!`,
+          answer: `Kunci: Menyebutkan Tauhid Rububiyyah, Tauhid Uluhiyyah, dan Tauhid Asma' wa Shifat beserta penjelasannya secara syar'i.`,
+          indicator: `Menganalisis pembagian tiga macam tauhid butir ke-${i}`
+        });
+      }
+      const kisi = [];
+      for (let i = 1; i <= 30; i++) {
+        kisi.push({
+          no: i,
+          materi: i <= 15 ? "Definisi Ibadah & Syarat Qabul" : (i <= 25 ? "Syirik Akbar & Ashghar" : "Pembagian Tiga Macam Tauhid"),
+          indikator: `Siswa dapat mengidentifikasi konsep akidah Islam yang shahih (No. ${i}).`,
+          no_soal: i,
+          bentuk: i <= 15 ? "PG" : (i <= 25 ? "B-S" : "Esai")
+        });
+      }
+      return {
+        meta: { subject: cfg.subject, grade: cfg.grade, year: "2026/2027", semester: "1", time: "120 Menit" },
+        pg, bs, esai, kisi_kisi: kisi,
+        analisis_kualitatif: {
+          kaidah_materi: "Materi sesuai dengan kurikulum akidah manhaj salaf di madrasah.",
+          kaidah_konstruksi: "Pokok soal dirumuskan jelas, tidak menimbulkan penafsiran ganda.",
+          kaidah_bahasa: "Bahasa, istilah syar'i, dan harakat telah sesuai kaidah bahasa Arab.",
+          catatan_revisi: "Naskah soal memenuhi standar mutu telaah silang guru dhiniyyah SMA Al-Minhaj."
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateApiKeyStatus();
+      updateTotalCount();
+    });
+  </script>
+</body>
+</html>
