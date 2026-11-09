@@ -15,20 +15,48 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body { font-family: 'Inter', sans-serif; }
-    .font-amiri { font-family: 'Amiri', serif; }
+    
+    /* Standard Styles for Al-Minhaj Exam Template */
+    .font-indo {
+      font-family: 'Calibri', 'Inter', sans-serif !important;
+      font-size: 12pt !important;
+      line-height: 1.35;
+    }
+
+    .font-arab {
+      font-family: 'Traditional Arabic', 'Amiri', serif !important;
+      font-size: 16pt !important;
+      line-height: 1.6;
+      direction: rtl;
+      text-align: right;
+    }
+
     .rtl-text { direction: rtl; text-align: right; }
     .ltr-text { direction: ltr; text-align: left; }
-    
-    /* Mencegah butir soal dan baris tabel terpotong di tengah halaman PDF/cetak */
+
+    /* Mencegah pemotongan elemen di tengah halaman */
     .avoid-break {
       break-inside: avoid;
       page-break-inside: avoid;
     }
 
+    /* Standar Cetak & PDF: Ukuran A4 dengan Batas Tepi Narrow (12.7mm / 0.5in) */
+    @page {
+      size: A4 portrait;
+      margin: 12.7mm;
+    }
+
     @media print {
       body * { visibility: hidden; }
       #printArea, #printArea * { visibility: visible; }
-      #printArea { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 10mm; }
+      #printArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 12.7mm !important;
+      }
       .no-print { display: none !important; }
     }
   </style>
@@ -131,13 +159,25 @@
 
           <!-- Bahasa Pengantar -->
           <div>
-            <label for="inputLanguage" class="block font-semibold text-slate-700 mb-1">Bahasa Pengantar & Soal</label>
+            <label for="inputLanguage" class="block font-semibold text-slate-700 mb-1">Bahasa Pengantar & Format Font</label>
             <select id="inputLanguage" class="w-full rounded-lg border-slate-300 border p-2 bg-slate-50 text-slate-800 focus:ring-emerald-600 focus:border-emerald-600">
-              <option value="arab">Full Bahasa Arab (Khas Dhiniyyah)</option>
-              <option value="arab-indo" selected>Campuran Arab - Indonesia</option>
-              <option value="indo">Bahasa Indonesia</option>
-              <option value="inggris">Bahasa Inggris</option>
+              <option value="arab">Full Bahasa Arab (Traditional Arabic uk. 16, Opsi أ, ب, ج, د, هـ)</option>
+              <option value="arab-indo" selected>Campuran Arab - Indonesia (Trad. Arabic 16 / Calibri 12)</option>
+              <option value="indo">Bahasa Indonesia (Calibri uk. 12, Opsi A, B, C, D, E)</option>
+              <option value="inggris">Bahasa Inggris (Calibri uk. 12, Opsi A, B, C, D, E)</option>
             </select>
+          </div>
+
+          <!-- Format Layout Dokumen -->
+          <div class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-lg text-slate-700 space-y-1">
+            <span class="font-bold text-emerald-900 block">Spesifikasi Format Dokumen:</span>
+            <ul class="list-disc list-inside text-[11px] text-slate-600 space-y-0.5">
+              <li><strong>Ukuran Kertas:</strong> A4 (210 × 297 mm)</li>
+              <li><strong>Batas Tepi (Margin):</strong> Narrow (12.7 mm / 0.5 in)</li>
+              <li><strong>Font Teks Arab:</strong> Traditional Arabic uk. 16pt (RTL)</li>
+              <li><strong>Font Teks Latin:</strong> Calibri uk. 12pt (LTR)</li>
+              <li><strong>Numbering Opsi Arab:</strong> أ ، ب ، ج ، د ، هـ</li>
+            </ul>
           </div>
 
           <!-- Komposisi Butir Soal -->
@@ -164,7 +204,7 @@
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label for="subjectName" class="block font-semibold text-slate-700 mb-0.5">Mata Pelajaran</label>
-              <input type="text" id="subjectName" value="Akidah" class="w-full rounded-lg border-slate-300 border p-2 text-slate-800">
+              <input type="text" id="subjectName" value="Bahasa Arab" class="w-full rounded-lg border-slate-300 border p-2 text-slate-800">
             </div>
             <div>
               <label for="targetClass" class="block font-semibold text-slate-700 mb-0.5">Kelas / Jurusan</label>
@@ -172,7 +212,7 @@
             </div>
             <div>
               <label for="teacherName" class="block font-semibold text-slate-700 mb-0.5">Guru Penyusun</label>
-              <input type="text" id="teacherName" value="Achmad Fauzan Muslim" class="w-full rounded-lg border-slate-300 border p-2 text-slate-800">
+              <input type="text" id="teacherName" value="Husnul Bakti, M.Pd." class="w-full rounded-lg border-slate-300 border p-2 text-slate-800">
             </div>
             <div>
               <label for="reviewerName" class="block font-semibold text-slate-700 mb-0.5">Guru Penelaah (Verifikator)</label>
@@ -221,7 +261,7 @@
           <button id="btnPrint" type="button" title="Dialog Cetak Browser" class="p-1.5 rounded border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs flex items-center gap-1">
             <span>🖨️ Print</span>
           </button>
-          <button id="btnDownloadPdf" type="button" title="Unduh Langsung PDF Tanpa Dialog Cetak" class="px-2.5 py-1.5 rounded bg-rose-700 hover:bg-rose-800 text-white text-xs font-semibold flex items-center gap-1">
+          <button id="btnDownloadPdf" type="button" title="Unduh Langsung PDF A4 Narrow" class="px-2.5 py-1.5 rounded bg-rose-700 hover:bg-rose-800 text-white text-xs font-semibold flex items-center gap-1">
             <span>📄 Unduh PDF</span>
           </button>
           <button id="btnDownloadDoc" type="button" title="Unduh File Word" class="px-2.5 py-1.5 rounded bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold flex items-center gap-1">
@@ -230,13 +270,13 @@
         </div>
       </div>
 
-      <!-- Area Output Dokumen Sesuai Format Template Sekolah -->
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 min-h-[600px] text-slate-900 overflow-x-auto" id="printArea">
+      <!-- Area Output Dokumen Sesuai Format Template Sekolah (A4, Margin Narrow 12.7mm) -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-[12.7mm] min-h-[600px] text-slate-900 overflow-x-auto" id="printArea">
         <div id="outputContent" class="space-y-6">
           <div class="text-center py-20 text-slate-400">
             <span class="text-4xl block mb-2">📑</span>
             <p class="text-sm font-medium">Belum ada dokumen yang di-generate.</p>
-            <p class="text-xs text-slate-400 mt-1">Masukkan materi lalu klik tombol generate atau klik "Muat Contoh Cepat".</p>
+            <p class="text-xs text-slate-400 mt-1">Format aktif: A4 | Margin Narrow (12.7mm) | Traditional Arabic 16 & Calibri 12.</p>
           </div>
         </div>
       </div>
@@ -251,7 +291,7 @@
         <button id="btnCloseApiModal" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
       </div>
       <p class="text-xs text-slate-600 leading-relaxed">
-        Masukkan API Key Google AI Studio Anda. Kunci ini hanya disimpan di peramban (Local Storage) dan dipanggil langsung ke server Google AI.
+        Masukkan API Key Google AI Studio Anda. Kunci ini hanya disimpan di browser secara lokal dan dipanggil langsung ke server Google AI.
       </p>
       <div>
         <label for="apiKeyInput" class="block text-xs font-semibold text-slate-700 mb-1">API Key</label>
@@ -366,7 +406,8 @@
             for (let i = 1; i <= Math.min(pdf.numPages, 15); i++) {
               const page = await pdf.getPage(i);
               const content = await page.getTextContent();
-              fullText += content.items.map(item => item.str).join(' ') + '\n';
+              fullText += content.items.map(item => item.str).join(' ') + '
+';
             }
             materialText.value = fullText;
           }
@@ -410,24 +451,24 @@
       showAlert("Dihapus", "API Key Gemini telah dihapus.", false);
     });
 
-    // Dummy Cepat
+    // Dummy Cepat Berbahasa Arab & Indo
     document.getElementById('btnQuickDemo')?.addEventListener('click', () => {
-      materialText.value = `Ringkasan Materi Pelajaran Akidah Kelas X SMA Al-Minhaj:
-1. Makna Ibadah secara bahasa dan syariat: Segala sesuatu yang dicintai dan diridhai Allah baik ucapan maupun perbuatan yang tampak maupun tersembunyi.
-2. Syarat diterimanya ibadah: Ikhlas karena Allah dan Ittiba' kepada Rasulullah shallallahu 'alaihi wa sallam.
-3. Pembagian Tauhid: Rububiyyah (mentauhidkan Allah dalam perbuatan-Nya), Uluhiyyah (mentauhidkan Allah dalam perbuatan hamba), Asma' wa Shifat (menetapkan nama dan sifat Allah tanpa tahrif, ta'thil, takyif, dan tamtsil).
-4. Bahaya dan jenis-jenis Syirik Akbar dan Syirik Ashghar (seperti Riya').
-5. Dalil-dalil pokok dari Al-Qur'an dan Sunnah tentang kewajiban mengikhlaskan agama semata-mata bagi Allah.`;
+      materialText.value = `Ringkasan Materi Pelajaran Bahasa Arab & Nahwu Kelas X SMA Al-Minhaj:
+1. Al-Hiwar wa Al-Mufradat fi Al-Madrasah (Perkenalan dan interaksi di ma'had).
+2. Qawa'id: Ta'rif Al-Kalimah wa Aqsamuha: Al-Ism, Al-Fi'l, wa Al-Harf.
+3. 'Alamatul Ismi: At-Tanwin, Dukhul Alif Lam, wa Dukhul Hurufil Jar.
+4. Fi'il Madhi, Mudhari', dan Amr serta Dhomir Munfashil.
+5. Susunan Jumlah Ismiyyah (Mubtada' & Khabar) dan Jumlah Fi'liyyah (Fi'il & Fa'il).`;
 
       APP_STATE.generatedData = generateFallbackExamData({
-        subject: safeGetValue('subjectName', 'Akidah'),
+        subject: safeGetValue('subjectName', 'Bahasa Arab'),
         grade: safeGetValue('targetClass', 'X A'),
-        teacher: safeGetValue('teacherName', 'Achmad Fauzan Muslim'),
+        teacher: safeGetValue('teacherName', 'Husnul Bakti, M.Pd.'),
         reviewer: safeGetValue('reviewerName', 'Dr. Khalid Yahya Al-Mahdali, MA'),
         lang: safeGetValue('inputLanguage', 'arab-indo')
       });
       renderActiveTab();
-      showAlert("Sukses", "Data contoh berhasil dimuat sesuai template SMA Al-Minhaj!", false);
+      showAlert("Sukses", "Data contoh format Traditional Arabic 16 & Calibri 12 berhasil dimuat!", false);
     });
 
     // Tombol Generate Utama
@@ -450,9 +491,9 @@
 
       try {
         const payload = {
-          subject: safeGetValue('subjectName', 'Akidah'),
+          subject: safeGetValue('subjectName', 'Bahasa Arab'),
           grade: safeGetValue('targetClass', 'X A'),
-          teacher: safeGetValue('teacherName', 'Achmad Fauzan Muslim'),
+          teacher: safeGetValue('teacherName', 'Husnul Bakti, M.Pd.'),
           reviewer: safeGetValue('reviewerName', 'Dr. Khalid Yahya Al-Mahdali, MA'),
           lang: safeGetValue('inputLanguage', 'arab-indo'),
           model: getSelectedModel(),
@@ -476,21 +517,28 @@
       }
     });
 
-    // Pemanggilan API Gemini Resmi (Menggunakan model pilihan langsung)
+    // Pemanggilan API Gemini Resmi (Model 3.8 Flash, 3.5 Flash-Lite, 3.1 Pro, 4 Argon)
     async function callGeminiAPI(config) {
       const selectedModel = config.model || 'gemini-3.8-flash';
       const apiModelEndpoint = selectedModel.replace(/^models\//, '');
 
+      const isArab = config.lang.includes('arab');
+      const optionGuide = isArab 
+        ? "Wajib menggunakan numbering huruf Arab: 'أ. ', 'ب. ', 'ج. ', 'د. ', 'هـ. ' (5 opsi)"
+        : "Gunakan numbering huruf Latin: 'A. ', 'B. ', 'C. ', 'D. ', 'E. ' (5 opsi)";
+
       const prompt = `Anda adalah pakar kurikulum dan penyusun evaluasi penilaian SMA Al-Minhaj Bogor.
 Tugas Anda adalah menyusun dokumen PSAS TA 2026/2027 secara lengkap dengan format JSON murni.
 
-Kriteria Dokumen:
+Kriteria Dokumen & Format Soal:
 - Mata Pelajaran: ${config.subject}
 - Kelas: ${config.grade}
 - Guru Penyusun: ${config.teacher}
 - Penelaah: ${config.reviewer}
-- Mode Bahasa: ${config.lang} (Jika Arab/Arab-Indo, berikan harakat yang tepat pada istilah dan soal syar'i)
-- Komposisi: Tepat ${config.pgCount} Soal PG (opsi A-E / أ-ه), tepat ${config.bsCount} Soal Benar/Salah (Pernyataan), dan tepat ${config.esaiCount} Soal Esai.
+- Mode Bahasa: ${config.lang}
+- Peraturan Khusus Bahasa Arab: Jika teks berbahasa Arab, berikan harakat yang lengkap dan tepat.
+- Format Opsi PG: ${optionGuide}
+- Komposisi: Tepat ${config.pgCount} Soal PG, tepat ${config.bsCount} Soal Benar/Salah (Tabel Kolom), dan tepat ${config.esaiCount} Soal Esai.
 - Referensi Materi:
 ${config.material.substring(0, 5000)}
 
@@ -498,13 +546,32 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
 {
   "meta": { "subject": "${config.subject}", "grade": "${config.grade}", "year": "2026/2027", "semester": "1", "time": "120 Menit" },
   "pg": [
-    { "no": 1, "question": "teks butir soal...", "options": ["A. opsi", "B. opsi", "C. opsi", "D. opsi", "E. opsi"], "answer": "أ / A", "indicator": "Indikator soal..." }
+    { 
+      "no": 1, 
+      "question_arab": "نص السؤال باللغة العربية...", 
+      "question_indo": "Teks soal terjemahan/bahasa Indonesia...",
+      "options": ["أ. ...", "ب. ...", "ج. ...", "د. ...", "هـ. ..."], 
+      "answer": "أ", 
+      "indicator": "Indikator soal..." 
+    }
   ],
   "bs": [
-    { "no": 1, "statement": "teks pernyataan...", "answer": "✓ / ✘", "indicator": "Indikator pernyataan..." }
+    { 
+      "no": 1, 
+      "statement_arab": "العبارة باللغة العربية...", 
+      "statement_indo": "Pernyataan bahasa Indonesia...",
+      "answer": "✓", 
+      "indicator": "Indikator pernyataan..." 
+    }
   ],
   "esai": [
-    { "no": 1, "question": "teks pertanyaan esai...", "answer": "panduan jawaban lengkap...", "indicator": "Indikator esai..." }
+    { 
+      "no": 1, 
+      "question_arab": "السؤال المقالي...", 
+      "question_indo": "Soal esai bahasa Indonesia...",
+      "answer": "Panduan jawaban / rubrik...", 
+      "indicator": "Indikator esai..." 
+    }
   ],
   "kisi_kisi": [
     { "no": 1, "materi": "Materi...", "indikator": "Indikator...", "no_soal": 1, "bentuk": "PG" }
@@ -543,27 +610,28 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
       return JSON.parse(cleanJson);
     }
 
-    // Render Tampilan Tab Dokumen
+    // Render Tampilan Tab Dokumen (Font: Traditional Arabic 16pt & Calibri 12pt, Margin Narrow)
     function renderActiveTab() {
       const container = document.getElementById('outputContent');
       if (!container || !APP_STATE.generatedData) return;
 
       const d = APP_STATE.generatedData;
-      const isArabic = safeGetValue('inputLanguage').includes('arab');
-      const fontClass = isArabic ? 'font-amiri text-base leading-relaxed' : 'text-sm';
-      const alignClass = isArabic ? 'rtl-text' : 'ltr-text';
+      const langChoice = safeGetValue('inputLanguage');
+      const isPureArabic = langChoice === 'arab';
+      const isMixed = langChoice === 'arab-indo';
 
       let html = '';
 
       if (APP_STATE.activeTab === 'tabSoal') {
         html = `
-          <div class="border-b-2 border-slate-900 pb-3 mb-4 text-center avoid-break">
+          <!-- KOP SOAL PSAS SMA AL-MINHAJ -->
+          <div class="border-b-2 border-slate-900 pb-2 mb-3 text-center avoid-break font-indo">
             <h3 class="font-bold text-base tracking-wider uppercase">SMA AL MINHAJ</h3>
             <h4 class="font-bold text-sm tracking-wide">PENILAIAN SUMATIF AKHIR SEMESTER (PSAS)</h4>
             <p class="text-xs text-slate-600">TAHUN PELAJARAN 2026/2027</p>
           </div>
 
-          <table class="w-full text-xs mb-4 avoid-break">
+          <table class="w-full text-xs mb-3 avoid-break font-indo">
             <tr>
               <td class="w-28 font-semibold py-0.5">Mata Pelajaran</td>
               <td class="w-3">:</td>
@@ -590,79 +658,97 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
             </tr>
           </table>
 
-          <div class="p-2.5 bg-slate-50 border border-slate-200 rounded text-xs mb-4 avoid-break">
-            <span class="font-bold block mb-1">Petunjuk Umum:</span>
+          <div class="p-2 bg-slate-50 border border-slate-200 rounded text-xs mb-4 avoid-break font-indo">
+            <span class="font-bold block mb-0.5">Petunjuk Umum:</span>
             <ol class="list-decimal list-inside space-y-0.5 text-slate-700">
               <li>Berdoalah kepada Allah Ta'ala sebelum memulai mengerjakan soal.</li>
               <li>Periksa dan bacalah lembar soal dengan teliti sebelum menjawab.</li>
-              <li>Kerjakan soal yang Anda anggap mudah terlebih dahulu.</li>
-              <li>Periksa kembali jawaban Anda sebelum dikumpulkan kepada pengawas.</li>
+              <li>Dahulukan menjawab soal-soal yang Anda anggap mudah.</li>
+              <li>Periksa kembali jawaban Anda sebelum diserahkan kepada pengawas ujian.</li>
             </ol>
           </div>
 
-          <div class="mb-6">
-            <h4 class="font-bold text-xs uppercase bg-slate-100 p-1.5 border-l-4 border-emerald-700 mb-3 avoid-break">
-              I. PILIHAN GANDA (اخْتِيَارٌ مُتَعَدِّدٌ)
+          <!-- BAGIAN I: PILIHAN GANDA -->
+          <div class="mb-5">
+            <h4 class="font-bold text-xs uppercase bg-slate-100 p-1.5 border-l-4 border-emerald-700 mb-3 avoid-break font-indo">
+              I. PILIHAN GANDA (الاخْتِيَارُ المُتَعَدِّدُ)
             </h4>
-            <div class="space-y-4 ${fontClass} ${alignClass}">
-              ${d.pg.map(item => `
-                <div class="avoid-break">
-                  <p class="font-medium mb-1.5"><span class="font-bold">${item.no}.</span> ${item.question}</p>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-1 text-xs pl-4">
+            <div class="space-y-4">
+              ${d.pg.map(item => {
+                const arabQ = item.question_arab || item.question || '';
+                const indoQ = item.question_indo || '';
+                return `
+                <div class="avoid-break border-b border-slate-100 pb-3">
+                  ${isPureArabic || isMixed ? `<div class="font-arab font-semibold mb-1">${item.no}. ${arabQ}</div>` : ''}
+                  ${!isPureArabic && indoQ ? `<div class="font-indo text-slate-800 mb-1.5">${isPureArabic ? '' : item.no + '. '} ${indoQ}</div>` : (!isPureArabic && !isMixed ? `<div class="font-indo font-medium mb-1.5">${item.no}. ${arabQ}</div>` : '')}
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-1.5 pt-1 ${isPureArabic || isMixed ? 'font-arab' : 'font-indo pl-4'}">
                     ${item.options.map(opt => `<div>${opt}</div>`).join('')}
                   </div>
                 </div>
-              `).join('')}
+              `}).join('')}
             </div>
           </div>
 
-          <div class="mb-6">
-            <h4 class="font-bold text-xs uppercase bg-slate-100 p-1.5 border-l-4 border-emerald-700 mb-3 avoid-break">
-              II. BENAR ATAU SALAH (الصَّحِيْحُ وَ الخَطَأُ)
+          <!-- BAGIAN II: BENAR / SALAH (TABEL KOLOM) -->
+          <div class="mb-5">
+            <h4 class="font-bold text-xs uppercase bg-slate-100 p-1.5 border-l-4 border-emerald-700 mb-2 avoid-break font-indo">
+              II. BENAR ATAU SALAH (الصَّحِيْحُ وَ الخَطَأُ)
             </h4>
-            <p class="text-xs mb-2 italic avoid-break">Berikan tanda centang (✔) pada pernyataan yang benar dan tanda silang (✘) pada pernyataan yang salah!</p>
-            <table class="w-full text-xs border-collapse border border-slate-300">
+            <p class="text-xs mb-2 italic avoid-break font-indo">Berikan tanda centang (✔) pada pernyataan yang benar dan tanda silang (✘) pada pernyataan yang salah!</p>
+            <table class="w-full border-collapse border border-slate-300">
               <thead>
-                <tr class="bg-slate-100 avoid-break">
+                <tr class="bg-slate-100 avoid-break font-indo text-xs">
                   <th class="border border-slate-300 p-1.5 w-10 text-center">No</th>
-                  <th class="border border-slate-300 p-1.5 text-left">Pernyataan / العبارة</th>
+                  <th class="border border-slate-300 p-1.5 text-left">Pernyataan (العِبَارَةُ)</th>
                   <th class="border border-slate-300 p-1.5 w-24 text-center">Jawaban</th>
                 </tr>
               </thead>
               <tbody>
-                ${d.bs.map(item => `
+                ${d.bs.map(item => {
+                  const arabSt = item.statement_arab || item.statement || '';
+                  const indoSt = item.statement_indo || '';
+                  return `
                   <tr class="avoid-break">
-                    <td class="border border-slate-300 p-1.5 text-center font-bold">${item.no}</td>
-                    <td class="border border-slate-300 p-1.5 ${fontClass} ${alignClass}">${item.statement}</td>
+                    <td class="border border-slate-300 p-1.5 text-center font-bold font-indo text-xs">${item.no}</td>
+                    <td class="border border-slate-300 p-1.5">
+                      ${isPureArabic || isMixed ? `<div class="font-arab font-semibold">${arabSt}</div>` : ''}
+                      ${!isPureArabic && indoSt ? `<div class="font-indo text-xs text-slate-700">${indoSt}</div>` : (!isPureArabic && !isMixed ? `<div class="font-indo text-xs">${arabSt}</div>` : '')}
+                    </td>
                     <td class="border border-slate-300 p-1.5 text-center"></td>
                   </tr>
-                `).join('')}
+                `}).join('')}
               </tbody>
             </table>
           </div>
 
-          <div class="mb-6">
-            <h4 class="font-bold text-xs uppercase bg-slate-100 p-1.5 border-l-4 border-emerald-700 mb-3 avoid-break">
-              III. ESAI / URAIAN (الإِجَابَةُ المَقَالِيَّةُ)
+          <!-- BAGIAN III: ESAI / URAIAN -->
+          <div class="mb-5">
+            <h4 class="font-bold text-xs uppercase bg-slate-100 p-1.5 border-l-4 border-emerald-700 mb-3 avoid-break font-indo">
+              III. ESAI / URAIAN (الإِجَابَةُ المَقَالِيَّةُ)
             </h4>
-            <div class="space-y-3 ${fontClass} ${alignClass}">
-              ${d.esai.map(item => `
+            <div class="space-y-4">
+              ${d.esai.map(item => {
+                const arabEq = item.question_arab || item.question || '';
+                const indoEq = item.question_indo || '';
+                return `
                 <div class="avoid-break">
-                  <p class="font-medium"><span class="font-bold">${item.no}.</span> ${item.question}</p>
+                  ${isPureArabic || isMixed ? `<div class="font-arab font-semibold">${item.no}. ${arabEq}</div>` : ''}
+                  ${!isPureArabic && indoEq ? `<div class="font-indo text-slate-800">${item.no}. ${indoEq}</div>` : (!isPureArabic && !isMixed ? `<div class="font-indo text-slate-800">${item.no}. ${arabEq}</div>` : '')}
                   <div class="h-10 border-b border-dotted border-slate-300"></div>
                 </div>
-              `).join('')}
+              `}).join('')}
             </div>
           </div>
         `;
       } else if (APP_STATE.activeTab === 'tabLjk') {
         html = `
-          <div class="border-b-2 border-slate-900 pb-2 mb-4 text-center avoid-break">
+          <div class="border-b-2 border-slate-900 pb-2 mb-3 text-center avoid-break font-indo">
             <h3 class="font-bold text-sm tracking-wider uppercase">LEMBAR JAWABAN KOMPUTER / MANUAL (LJK)</h3>
             <h4 class="font-bold text-xs">SMA AL MINHAJ • PSAS 2026/2027</h4>
           </div>
 
-          <table class="w-full text-xs mb-4 avoid-break">
+          <table class="w-full text-xs mb-3 avoid-break font-indo">
             <tr>
               <td class="w-24 font-semibold">Nama Siswa</td><td class="w-3">:</td><td>........................................</td>
               <td class="w-24 font-semibold">Kelas</td><td class="w-3">:</td><td>${safeGetValue('targetClass')}</td>
@@ -673,20 +759,27 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
             </tr>
           </table>
 
-          <div class="mb-5 avoid-break">
-            <h5 class="font-bold text-xs mb-2">Jawaban Pilihan Ganda:</h5>
+          <div class="mb-4 avoid-break font-indo">
+            <h5 class="font-bold text-xs mb-2">Jawaban Pilihan Ganda (أ ، ب ، ج ، د ، هـ):</h5>
             <div class="grid grid-cols-3 gap-3 text-xs">
               ${[0, 1, 2].map(colIdx => `
                 <table class="w-full border-collapse border border-slate-300">
-                  <tr class="bg-slate-100"><th class="border border-slate-300 p-1">No</th><th colspan="5" class="border border-slate-300 p-1 text-center">Pilihan</th></tr>
+                  <tr class="bg-slate-100">
+                    <th class="border border-slate-300 p-1">No</th>
+                    <th class="border border-slate-300 p-1 text-center font-arab">أ</th>
+                    <th class="border border-slate-300 p-1 text-center font-arab">ب</th>
+                    <th class="border border-slate-300 p-1 text-center font-arab">ج</th>
+                    <th class="border border-slate-300 p-1 text-center font-arab">د</th>
+                    <th class="border border-slate-300 p-1 text-center font-arab">هـ</th>
+                  </tr>
                   ${d.pg.slice(colIdx * 5, (colIdx + 1) * 5).map(item => `
                     <tr>
                       <td class="border border-slate-300 p-1 text-center font-bold">${item.no}</td>
-                      <td class="border border-slate-300 p-1 text-center">A</td>
-                      <td class="border border-slate-300 p-1 text-center">B</td>
-                      <td class="border border-slate-300 p-1 text-center">C</td>
-                      <td class="border border-slate-300 p-1 text-center">D</td>
-                      <td class="border border-slate-300 p-1 text-center">E</td>
+                      <td class="border border-slate-300 p-1 text-center">○</td>
+                      <td class="border border-slate-300 p-1 text-center">○</td>
+                      <td class="border border-slate-300 p-1 text-center">○</td>
+                      <td class="border border-slate-300 p-1 text-center">○</td>
+                      <td class="border border-slate-300 p-1 text-center">○</td>
                     </tr>
                   `).join('')}
                 </table>
@@ -694,8 +787,8 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
             </div>
           </div>
 
-          <div class="mb-5 avoid-break">
-            <h5 class="font-bold text-xs mb-2">Jawaban Benar / Salah:</h5>
+          <div class="mb-4 avoid-break font-indo">
+            <h5 class="font-bold text-xs mb-2">Jawaban Benar / Salah (الصَّحِيْحُ وَ الخَطَأُ):</h5>
             <table class="w-full text-xs border-collapse border border-slate-300">
               <tr class="bg-slate-100">
                 <th class="border border-slate-300 p-1 w-12 text-center">No</th>
@@ -712,53 +805,53 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
             </table>
           </div>
 
-          <div class="avoid-break">
-            <h5 class="font-bold text-xs mb-2">Jawaban Esai / Uraian:</h5>
+          <div class="avoid-break font-indo">
+            <h5 class="font-bold text-xs mb-2">Jawaban Esai / Uraian (الإِجَابَةُ المَقَالِيَّةُ):</h5>
             ${d.esai.map(item => `
-              <div class="mb-3">
+              <div class="mb-2">
                 <span class="text-xs font-bold">${item.no}.</span>
-                <div class="h-12 border-b border-dotted border-slate-400"></div>
+                <div class="h-10 border-b border-dotted border-slate-400"></div>
               </div>
             `).join('')}
           </div>
         `;
       } else if (APP_STATE.activeTab === 'tabKj') {
         html = `
-          <div class="border-b-2 border-slate-900 pb-2 mb-4 text-center avoid-break">
+          <div class="border-b-2 border-slate-900 pb-2 mb-3 text-center avoid-break font-indo">
             <h3 class="font-bold text-sm tracking-wider uppercase">KUNCI JAWABAN & PEDOMAN PENSKORAN</h3>
             <h4 class="font-bold text-xs">SMA AL MINHAJ • TA 2026/2027</h4>
           </div>
 
-          <div class="mb-4 avoid-break">
+          <div class="mb-4 avoid-break font-indo">
             <h5 class="font-bold text-xs mb-2">Kunci Pilihan Ganda:</h5>
             <table class="w-full text-xs border-collapse border border-slate-300">
               <tr class="bg-slate-100">
                 ${d.pg.map(item => `<th class="border border-slate-300 p-1 text-center">${item.no}</th>`).join('')}
               </tr>
               <tr>
-                ${d.pg.map(item => `<td class="border border-slate-300 p-1 text-center font-bold text-emerald-800">${item.answer}</td>`).join('')}
+                ${d.pg.map(item => `<td class="border border-slate-300 p-1 text-center font-bold text-emerald-800 font-arab">${item.answer}</td>`).join('')}
               </tr>
             </table>
           </div>
 
-          <div class="mb-4 avoid-break">
+          <div class="mb-4 avoid-break font-indo">
             <h5 class="font-bold text-xs mb-2">Kunci Benar / Salah:</h5>
             <table class="w-full text-xs border-collapse border border-slate-300">
               <tr class="bg-slate-100">
                 ${d.bs.map(item => `<th class="border border-slate-300 p-1 text-center">${item.no}</th>`).join('')}
               </tr>
               <tr>
-                ${d.bs.map(item => `<td class="border border-slate-300 p-1 text-center font-bold">${item.answer}</td>`).join('')}
+                ${d.bs.map(item => `<td class="border border-slate-300 p-1 text-center font-bold text-emerald-800">${item.answer}</td>`).join('')}
               </tr>
             </table>
           </div>
 
-          <div class="mb-4">
+          <div class="mb-4 font-indo">
             <h5 class="font-bold text-xs mb-2 avoid-break">Rubrik Jawaban Esai:</h5>
             <div class="space-y-2 text-xs">
               ${d.esai.map(item => `
                 <div class="p-2 border border-slate-200 rounded bg-slate-50 avoid-break">
-                  <div class="font-bold text-slate-800">Soal No. ${item.no}: ${item.question}</div>
+                  <div class="font-bold text-slate-800">Soal No. ${item.no}: ${item.question_arab || item.question || ''}</div>
                   <div class="text-emerald-800 mt-1"><span class="font-semibold">Kunci:</span> ${item.answer}</div>
                 </div>
               `).join('')}
@@ -767,12 +860,12 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
         `;
       } else if (APP_STATE.activeTab === 'tabKisi') {
         html = `
-          <div class="border-b-2 border-slate-900 pb-2 mb-4 text-center avoid-break">
+          <div class="border-b-2 border-slate-900 pb-2 mb-3 text-center avoid-break font-indo">
             <h3 class="font-bold text-sm tracking-wider uppercase">KISI-KISI PENILAIAN SUMATIF AKHIR SEMESTER</h3>
             <h4 class="font-bold text-xs">SMA AL MINHAJ • TAHUN PELAJARAN 2026/2027</h4>
           </div>
 
-          <table class="w-full text-xs border-collapse border border-slate-300 mb-6">
+          <table class="w-full text-xs border-collapse border border-slate-300 mb-6 font-indo">
             <thead>
               <tr class="bg-slate-100 avoid-break">
                 <th class="border border-slate-300 p-2 w-10 text-center">No</th>
@@ -795,7 +888,7 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
             </tbody>
           </table>
 
-          <div class="mt-8 flex justify-between text-xs text-center avoid-break">
+          <div class="mt-8 flex justify-between text-xs text-center avoid-break font-indo">
             <div>
               <p>Mengetahui,</p>
               <p class="font-bold">Kepala SMA Al Minhaj</p>
@@ -814,12 +907,12 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
         `;
       } else if (APP_STATE.activeTab === 'tabAk') {
         html = `
-          <div class="border-b-2 border-slate-900 pb-2 mb-4 text-center avoid-break">
+          <div class="border-b-2 border-slate-900 pb-2 mb-3 text-center avoid-break font-indo">
             <h3 class="font-bold text-sm tracking-wider uppercase">INSTRUMEN ANALISIS KUALITATIF (AK) TELAAH NASKAH SOAL</h3>
             <h4 class="font-bold text-xs">VERIFIKASI & PEER REVIEW TELAAH SILANG GURU DHINIYYAH</h4>
           </div>
 
-          <table class="w-full text-xs mb-4 avoid-break">
+          <table class="w-full text-xs mb-3 avoid-break font-indo">
             <tr>
               <td class="w-32 font-semibold">Guru Penyusun</td><td class="w-3">:</td><td>${safeGetValue('teacherName')}</td>
               <td class="w-32 font-semibold">Guru Penelaah</td><td class="w-3">:</td><td>${safeGetValue('reviewerName')}</td>
@@ -830,7 +923,7 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
             </tr>
           </table>
 
-          <table class="w-full text-xs border-collapse border border-slate-300 mb-4">
+          <table class="w-full text-xs border-collapse border border-slate-300 mb-3 font-indo">
             <thead>
               <tr class="bg-slate-100 avoid-break">
                 <th class="border border-slate-300 p-2 w-10 text-center">No</th>
@@ -861,7 +954,7 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
             </tbody>
           </table>
 
-          <div class="p-3 bg-emerald-50 border border-emerald-200 rounded text-xs avoid-break">
+          <div class="p-3 bg-emerald-50 border border-emerald-200 rounded text-xs avoid-break font-indo">
             <span class="font-bold text-emerald-900 block mb-1">Rekomendasi Hasil Telaah Silang:</span>
             <p class="text-emerald-800">${d.analisis_kualitatif?.catatan_revisi || 'Naskah soal memenuhi standar mutu dan siap dicetak.'}</p>
           </div>
@@ -905,7 +998,7 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
       window.print();
     });
 
-    // Unduh Langsung PDF Tanpa Dialog Cetak (html2pdf.js)
+    // Unduh Langsung PDF A4 Margin Narrow (html2pdf.js)
     document.getElementById('btnDownloadPdf')?.addEventListener('click', () => {
       const element = document.getElementById('printArea');
       if (!element || !APP_STATE.generatedData) {
@@ -921,8 +1014,9 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
       btn.disabled = true;
       btn.innerHTML = `<span>⏳ Menyimpan...</span>`;
 
+      // Konfigurasi Standar: A4 Portrait, Margin Narrow (12.7mm = 0.5 inci)
       const opt = {
-        margin: [10, 10, 10, 10], // Margin atas, kiri, bawah, kanan (mm)
+        margin: [12.7, 12.7, 12.7, 12.7], // Atas, Kiri, Bawah, Kanan (mm)
         filename: filename,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { 
@@ -941,7 +1035,7 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
       html2pdf().set(opt).from(element).save().then(() => {
         btn.disabled = false;
         btn.innerHTML = originalText;
-        showAlert("Berhasil", "File PDF berhasil dibuat dan langsung diunduh!", false);
+        showAlert("Berhasil", "File PDF A4 (Narrow Margin) berhasil dibuat dan langsung diunduh!", false);
       }).catch((err) => {
         btn.disabled = false;
         btn.innerHTML = originalText;
@@ -949,7 +1043,7 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
       });
     });
 
-    // Download Word (.doc)
+    // Download Word (.doc) dengan Pengaturan Margin Narrow & Font Sesuai
     document.getElementById('btnDownloadDoc')?.addEventListener('click', () => {
       const area = document.getElementById('printArea');
       if (!area || !APP_STATE.generatedData) {
@@ -960,8 +1054,16 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
       const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' "+
             "xmlns:w='urn:schemas-microsoft-com:office:word' "+
             "xmlns='http://www.w3.org/TR/REC-html40'>"+
-            "<head><meta charset='utf-8'><title>Dokumen</title><style>body{font-family: Arial, sans-serif;}</style></head><body>";
-      const footer = "</body></html>";
+            "<head><meta charset='utf-8'><title>Dokumen</title><style>"+
+            "@page WordSection1 { size: 595.3pt 841.9pt; margin: 36.0pt 36.0pt 36.0pt 36.0pt; mso-header-margin: 35.4pt; mso-footer-margin: 35.4pt; } "+
+            "div.WordSection1 { page: WordSection1; } "+
+            "body { font-family: 'Calibri', Arial, sans-serif; font-size: 12pt; } "+
+            ".font-arab { font-family: 'Traditional Arabic', serif; font-size: 16pt; direction: rtl; text-align: right; } "+
+            ".font-indo { font-family: 'Calibri', sans-serif; font-size: 12pt; } "+
+            "table { border-collapse: collapse; width: 100%; } "+
+            "td, th { border: 1px solid #999; padding: 4px; } "+
+            "</style></head><body><div class='WordSection1'>";
+      const footer = "</div></body></html>";
       const sourceHTML = header + area.innerHTML + footer;
       const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
       const fileDownload = document.createElement("a");
@@ -972,48 +1074,53 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
       document.body.removeChild(fileDownload);
     });
 
-    // Generator Fallback Data Contoh Cepat
+    // Generator Fallback Data Contoh Cepat (Opsi Arab: أ ، ب ، ج ، د ، هـ)
     function generateFallbackExamData(cfg) {
       const pg = [];
+      const arabicOptions = [
+        "أ. اسْمٌ (Isim)",
+        "ب. فِعْلٌ (Fi'il)",
+        "ج. حَرْفٌ (Huruf)",
+        "د. جُمْلَةٌ مُفِيْدَةٌ (Jumlah Mufidah)",
+        "هـ. كَلَامٌ (Kalam)"
+      ];
+
       for (let i = 1; i <= 15; i++) {
         pg.push({
           no: i,
-          question: `مَا هُوَ التَّعْرِيْفُ الصَّحِيْحُ لِلْعِبَادَةِ فِي الشَّرِيْعَةِ الإِسْلَامِيَّةِ فِي السُّؤَالِ رَقْم (${i})؟`,
-          options: [
-            "أ. اسْمٌ جَامِعٌ لِكُلِّ مَا يُحِبُّهُ اللهُ وَيَرْضَاهُ",
-            "ب. فِعْلُ المَأْمُوْرَاتِ فَقَطْ دُوْنَ تَرْكِ المَنْهِيَّاتِ",
-            "ج. الصَّلَاةُ وَالصِّيَامُ دُوْنَ غَيْرِهِمَا",
-            "د. مَا يَفْعَلُهُ الإِنْسَانُ بِحَسَبِ عَادَةِ قَوْمِهِ",
-            "ه. اعْتِقَادُ القَلْبِ دُوْنَ حَاجَةٍ إِلَى العَمَلِ"
-          ],
+          question_arab: `مَا هُوَ التَّعْرِيْفُ الصَّحِيْحُ لِلْكَلِمَةِ فِي اللُّغَةِ العَرَبِيَّةِ فِي الجُمْلَةِ رَقْم (${i})؟`,
+          question_indo: `Apakah definisi yang tepat mengenai pembagian kata dalam tata bahasa Arab pada butir nomor (${i})?`,
+          options: arabicOptions,
           answer: "أ",
-          indicator: `Menjelaskan definisi dan hakikat ibadah syar'i butir ke-${i}`
+          indicator: `Mengidentifikasi jenis kata bahasa Arab nomor ${i}`
         });
       }
       const bs = [];
       for (let i = 1; i <= 10; i++) {
         bs.push({
           no: i,
-          statement: `مِنْ شُرُوْطِ قَبُوْلِ العَمَلِ الصَّالِحِ عِنْدَ اللهِ تَعَالَى: الإِخْلَاصُ وَالمُتَابَعَةُ لِلرَّسُوْلِ (${i}).`,
+          statement_arab: `الفِعْلُ المَاضِي هُوَ مَا دَلَّ عَلَى حَدَثٍ وَقَعَ قَبْلَ زَمَنِ التَّكَلُّمِ (${i}).`,
+          statement_indo: `Fi'il Madhi adalah kata kerja yang menunjukkan terjadinya suatu perbuatan sebelum waktu berbicara (${i}).`,
           answer: i % 2 === 0 ? "✓" : "✘",
-          indicator: `Menentukan syarat diterimanya amal ibadah butir ke-${i}`
+          indicator: `Menentukan kebenaran kaidah fi'il madhi ${i}`
         });
       }
       const esai = [];
       for (let i = 1; i <= 5; i++) {
         esai.push({
           no: i,
-          question: `اذْكُرْ أَقْسَامَ التَّوْحِيْدِ الثَّلَاثَةَ مَعَ شَرْحٍ مُوْجَزٍ لِكُلِّ قِسْمٍ (${i})!`,
-          answer: `Kunci: Menyebutkan Tauhid Rububiyyah, Tauhid Uluhiyyah, dan Tauhid Asma' wa Shifat beserta penjelasannya secara syar'i.`,
-          indicator: `Menganalisis pembagian tiga macam tauhid butir ke-${i}`
+          question_arab: `اُكْتُبْ ثَلَاثَ جُمَلٍ مُفِيْدَةٍ تَتَضَمَّنُ فِعْلًا وَفَاعِلًا وَمَفْعُوْلًا بِهِ (${i})!`,
+          question_indo: `Tuliskan tiga kalimat sempurna (jumlah mufidah) yang tersusun atas fi'il, fa'il, dan maf'ul bih (${i})!`,
+          answer: `Kunci: Menuliskan susunan jumlah fi'liyyah yang tersusun dari fi'il, fa'il, dan maf'ul bih dengan i'rab harakat yang benar.`,
+          indicator: `Menyusun jumlah fi'liyyah yang sempurna nomor ${i}`
         });
       }
       const kisi = [];
       for (let i = 1; i <= 30; i++) {
         kisi.push({
           no: i,
-          materi: i <= 15 ? "Definisi Ibadah & Syarat Qabul" : (i <= 25 ? "Syirik Akbar & Ashghar" : "Pembagian Tiga Macam Tauhid"),
-          indikator: `Siswa dapat mengidentifikasi konsep akidah Islam yang shahih (No. ${i}).`,
+          materi: i <= 15 ? "Qawa'id Isim & Fi'il" : (i <= 25 ? "Tashrif & Dhomir" : "Insya' & Jumlah Mufidah"),
+          indikator: `Disajikan teks/soal, siswa dapat menentukan kaidah gramatikal dengan tepat (No. ${i}).`,
           no_soal: i,
           bentuk: i <= 15 ? "PG" : (i <= 25 ? "B-S" : "Esai")
         });
@@ -1022,9 +1129,9 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
         meta: { subject: cfg.subject, grade: cfg.grade, year: "2026/2027", semester: "1", time: "120 Menit" },
         pg, bs, esai, kisi_kisi: kisi,
         analisis_kualitatif: {
-          kaidah_materi: "Materi sesuai dengan kurikulum akidah manhaj salaf di madrasah.",
-          kaidah_konstruksi: "Pokok soal dirumuskan jelas, tidak menimbulkan penafsiran ganda.",
-          kaidah_bahasa: "Bahasa, istilah syar'i, dan harakat telah sesuai kaidah bahasa Arab.",
+          kaidah_materi: "Materi sangat relevan dengan kurikulum bahasa Arab dan silabus PSAS 2026/2027.",
+          kaidah_konstruksi: "Pokok soal dirumuskan jelas, opsi homogen dan pengecoh berfungsi baik.",
+          kaidah_bahasa: "Kaidah Imla, Nahwu, dan harakat teks bahasa Arab telah tervalidasi secara akurat.",
           catatan_revisi: "Naskah soal memenuhi standar mutu telaah silang guru dhiniyyah SMA Al-Minhaj."
         }
       };
