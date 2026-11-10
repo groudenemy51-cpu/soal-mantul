@@ -252,18 +252,33 @@
             </div>
           </div>
 
-          <!-- Upload Berkas & Input Materi -->
+          <!-- Upload Berkas & Input Materi (Sempurna & Tahan Error) -->
           <div>
-            <label class="block font-semibold text-slate-700 mb-1">Materi Ujian (Upload Dokumen atau Tempel Teks)</label>
-            <div id="dropZone" class="border-2 border-dashed border-slate-300 hover:border-emerald-600 rounded-lg p-3 text-center cursor-pointer bg-slate-50 transition">
+            <div class="flex items-center justify-between mb-1">
+              <label class="block font-semibold text-slate-700">Materi Pelajaran (File / Teks)</label>
+              <span id="uploadStatusBadge" class="hidden px-2 py-0.5 text-[10px] rounded-full bg-emerald-100 text-emerald-800 font-medium"></span>
+            </div>
+            
+            <div id="dropZone" class="relative border-2 border-dashed border-emerald-400 hover:border-emerald-600 bg-emerald-50/40 rounded-xl p-4 text-center cursor-pointer transition select-none group">
               <input type="file" id="fileInput" accept=".pdf,.docx,.txt" class="hidden">
-              <div class="flex flex-col items-center justify-center gap-1">
-                <span class="text-xl">📄</span>
-                <span class="font-medium text-slate-700 text-xs">Klik untuk upload file PDF, DOCX, atau TXT</span>
-                <span id="fileNameDisplay" class="text-[11px] text-slate-500">Maksimal 20MB</span>
+              <div class="flex flex-col items-center justify-center gap-1.5">
+                <span id="uploadIcon" class="text-2xl transition group-hover:scale-110">📤</span>
+                <span id="uploadTitle" class="font-bold text-slate-800 text-xs">Klik untuk memilih file atau seret (drag & drop) ke sini</span>
+                <span id="fileNameDisplay" class="text-[11px] text-slate-500">Mendukung PDF, DOCX, & TXT (Maks. 30MB)</span>
+              </div>
+              <div id="uploadProgress" class="hidden mt-2">
+                <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                  <div class="bg-emerald-600 h-1.5 rounded-full animate-pulse w-full"></div>
+                </div>
+                <p id="uploadProgressText" class="text-[10px] text-emerald-800 mt-1 font-semibold">Sedang mengekstrak teks...</p>
               </div>
             </div>
-            <textarea id="materialText" rows="4" class="w-full mt-2 rounded-lg border-slate-300 border p-2 text-xs text-slate-800 font-mono" placeholder="Atau paste ringkasan silabus / materi langsung di sini..."></textarea>
+            
+            <div class="flex items-center justify-between mt-2 mb-1">
+              <label for="materialText" class="text-[11px] text-slate-600 font-medium">Isi / Ringkasan Materi yang Diekstrak:</label>
+              <button id="btnClearMaterial" type="button" class="text-[11px] text-rose-600 hover:underline">Kosongkan</button>
+            </div>
+            <textarea id="materialText" rows="4" class="w-full rounded-lg border-slate-300 border p-2 text-xs text-slate-800 font-mono" placeholder="Teks dari file PDF/Word Anda akan otomatis muncul di sini, atau Anda dapat mengetik/paste materi langsung..."></textarea>
           </div>
 
           <!-- Tombol Generate Utama -->
@@ -352,6 +367,11 @@
 
   <!-- Logika Aplikasi (JavaScript) -->
   <script>
+    // Konfigurasi Worker PDF.js agar parser PDF tidak error/hang
+    if (typeof pdfjsLib !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
     const APP_STATE = {
       apiKey: localStorage.getItem('GEMINI_API_KEY') || '',
       activeTab: 'tabSoal',
@@ -410,40 +430,152 @@
       if (el) el.addEventListener('input', updateTotalCount);
     });
 
-    // File Upload Handler (PDF, DOCX, TXT)
+    // -------------------------------------------------------------
+    // ENGINE UPLOAD & PARSER BERKAS ROBUST (PDF, DOCX, TXT)
+    // -------------------------------------------------------------
     const fileInput = document.getElementById('fileInput');
     const dropZone = document.getElementById('dropZone');
     const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const uploadTitle = document.getElementById('uploadTitle');
+    const uploadProgress = document.getElementById('uploadProgress');
+    const uploadProgressText = document.getElementById('uploadProgressText');
+    const uploadStatusBadge = document.getElementById('uploadStatusBadge');
     const materialText = document.getElementById('materialText');
 
-    if (dropZone && fileInput) {
-      dropZone.addEventListener('click', () => fileInput.click());
-      fileInput.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        fileNameDisplay.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-        
-        try {
-          if (file.name.endsWith('.txt')) {
-            const text = await file.text();
-            materialText.value = text;
-          } else if (file.name.endsWith('.docx')) {
-            const arrayBuffer = await file.arrayBuffer();
-            const result = await mammoth.extractRawText({ arrayBuffer });
-            materialText.value = result.value;
-          } else if (file.name.endsWith('.pdf')) {
-            const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-            let fullText = '';
-            for (let i = 1; i <= Math.min(pdf.numPages, 15); i++) {
-              const page = await pdf.getPage(i);
-              const content = await page.getTextContent();
-              fullText += content.items.map(item => item.str).join(' ') + '\n';
-            }
-            materialText.value = fullText;
+    document.getElementById('btnClearMaterial')?.addEventListener('click', () => {
+      materialText.value = '';
+      if (fileNameDisplay) fileNameDisplay.textContent = 'Mendukung PDF, DOCX, & TXT (Maks. 30MB)';
+      if (uploadTitle) uploadTitle.textContent = 'Klik untuk memilih file atau seret (drag & drop) ke sini';
+      if (uploadStatusBadge) uploadStatusBadge.classList.add('hidden');
+      if (fileInput) fileInput.value = '';
+    });
+
+    // Helper FileReader ArrayBuffer
+    function readFileAsArrayBuffer(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (err) => reject(err);
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    // Helper FileReader Text
+    function readFileAsText(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (err) => reject(err);
+        reader.readAsText(file);
+      });
+    }
+
+    async function processFile(file) {
+      if (!file) return;
+
+      const ext = file.name.split('.').pop().toLowerCase();
+      const fileSizeKB = (file.size / 1024).toFixed(1);
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      const displaySize = file.size > 1024 * 1024 ? `${fileSizeMB} MB` : `${fileSizeKB} KB`;
+
+      uploadTitle.textContent = file.name;
+      fileNameDisplay.textContent = `Ukuran: ${displaySize} • Memproses...`;
+      uploadProgress.classList.remove('hidden');
+      uploadStatusBadge.classList.add('hidden');
+
+      try {
+        let extractedText = '';
+
+        if (ext === 'txt') {
+          uploadProgressText.textContent = 'Membaca file teks...';
+          extractedText = await readFileAsText(file);
+        } else if (ext === 'docx') {
+          uploadProgressText.textContent = 'Mengekstrak dokumen Microsoft Word...';
+          const arrayBuffer = await readFileAsArrayBuffer(file);
+          if (typeof mammoth === 'undefined') {
+            throw new Error("Library pemroses DOCX (mammoth.js) belum terunduh.");
           }
-        } catch (err) {
-          showAlert("Gagal Membaca File", "Terjadi kesalahan saat membaca file: " + err.message);
+          const result = await mammoth.extractRawText({ arrayBuffer });
+          extractedText = result.value;
+        } else if (ext === 'pdf') {
+          uploadProgressText.textContent = 'Membaca struktur PDF...';
+          const arrayBuffer = await readFileAsArrayBuffer(file);
+          if (typeof pdfjsLib === 'undefined') {
+            throw new Error("Library pemroses PDF (pdf.js) belum terunduh.");
+          }
+          const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+          const pdfDoc = await loadingTask.promise;
+          const totalPages = pdfDoc.numPages;
+          
+          let pagesToExtract = Math.min(totalPages, 50); // Maks. 50 halaman untuk performa
+          let collected = [];
+
+          for (let i = 1; i <= pagesToExtract; i++) {
+            uploadProgressText.textContent = `Mengekstrak halaman ${i} dari ${totalPages}...`;
+            const page = await pdfDoc.getPage(i);
+            const content = await page.getTextContent();
+            const pageText = content.items.map(item => item.str).join(' ');
+            if (pageText.trim()) {
+              collected.push(`--- [Halaman ${i}] ---\n` + pageText);
+            }
+          }
+          extractedText = collected.join('\n\n');
+        } else {
+          throw new Error(`Format berkas .${ext} tidak didukung. Harap gunakan PDF, DOCX, atau TXT.`);
+        }
+
+        if (!extractedText || extractedText.trim().length === 0) {
+          throw new Error("File berhasil dibaca tetapi tidak ditemukan teks yang dapat diekstrak (mungkin berupa scan gambar).");
+        }
+
+        materialText.value = extractedText.trim();
+        fileNameDisplay.textContent = `Siap! (${displaySize} • ${extractedText.length.toLocaleString()} karakter)`;
+        uploadStatusBadge.textContent = '✓ Berhasil Dimuat';
+        uploadStatusBadge.classList.remove('hidden');
+        showAlert("File Berhasil Dibaca", `Berhasil mengekstrak ${extractedText.length.toLocaleString()} karakter dari ${file.name}.`, false);
+      } catch (err) {
+        console.error("Gagal ekstrak file:", err);
+        fileNameDisplay.textContent = `Gagal diproses (${displaySize})`;
+        showAlert("Gagal Upload / Ekstrak", err.message || "Terjadi kesalahan saat membaca file.");
+      } finally {
+        uploadProgress.classList.add('hidden');
+      }
+    }
+
+    if (dropZone && fileInput) {
+      // Trigger klik file
+      dropZone.addEventListener('click', (e) => {
+        fileInput.click();
+      });
+
+      fileInput.addEventListener('change', async (e) => {
+        if (e.target.files && e.target.files[0]) {
+          await processFile(e.target.files[0]);
+        }
+      });
+
+      // Drag and Drop Events
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.add('border-emerald-600', 'bg-emerald-100/60');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.remove('border-emerald-600', 'bg-emerald-100/60');
+        });
+      });
+
+      dropZone.addEventListener('drop', async (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files && files[0]) {
+          await processFile(files[0]);
         }
       });
     }
@@ -587,7 +719,7 @@ FORMAT WAJIB & PERATURAN KHUSUS:
   * Berikan teks Arab dan sertakan terjemahan / padanan Indonesia di bawahnya.
 - Komposisi: Tepat ${config.pgCount} Soal PG, tepat ${config.bsCount} Soal Benar/Salah (Tabel Kolom), dan tepat ${config.esaiCount} Soal Esai.
 - Referensi Materi Pembelajaran:
-${config.material.substring(0, 5000)}
+${config.material.substring(0, 6000)}
 
 Kembalikan HANYA format JSON valid tanpa tanda pembungkus markdown apapun:
 {
@@ -674,7 +806,6 @@ Kembalikan HANYA format JSON valid tanpa tanda pembungkus markdown apapun:
           // --- KOP SOAL FULL ARAB PERSIS TEMPLATE ASLI ---
           html = `
             <div class="avoid-break font-arab mb-3">
-              <!-- Tabel Kop Identitas & Petunjuk Sesuai Template Asli -->
               <table class="table-kop text-xs">
                 <tr>
                   <td class="font-bold w-[18%]">المَادَّةُ الدِرَاسِيَّةُ</td>
@@ -713,7 +844,6 @@ Kembalikan HANYA format JSON valid tanpa tanda pembungkus markdown apapun:
                 </tr>
               </table>
 
-              <!-- Logo Resmi SMA Al-Minhaj & Judul Ujian -->
               <div class="text-center my-3">
                 ${SMA_LOGO_SVG}
                 <div class="font-bold text-base leading-tight mt-1">الاِخْتِبَارُ النِهَائِيُّ لِلْفَصْلِ الدِرَاسِيِّ الأَوَّلِ</div>
@@ -893,12 +1023,11 @@ Kembalikan HANYA format JSON valid tanpa tanda pembungkus markdown apapun:
           `;
         }
       } else if (APP_STATE.activeTab === 'tabLjk') {
-        // --- LEMBAR JAWABAN (LJK) PERSIS TEMPLATE ASLI ---
         html = `
           <div class="avoid-break font-arab mb-3">
             <table class="table-kop text-xs">
               <tr>
-                <td class="font-bold w-[18%]">المَادَّةُ الدِرَاسِيَّةُ</td>
+                <td class="font-bold w-[18%]">المَADَّةُ الدِرَاسِيَّةُ</td>
                 <td class="w-[32%]">: ${d.meta?.subject || safeGetValue('subjectName')}</td>
                 <td class="font-bold w-[18%]">اليَوْمُ / التَارِيْخُ</td>
                 <td class="w-[32%]">: ........................................</td>
@@ -931,7 +1060,6 @@ Kembalikan HANYA format JSON valid tanpa tanda pembungkus markdown apapun:
             </div>
           </div>
 
-          <!-- LJK Pilihan Ganda Grid 3 Kolom -->
           <div class="mb-4 avoid-break font-arab">
             <h5 class="font-bold text-sm mb-2 border-b pb-1">الاخْتِيَارُ المُتَعَدِّدُ :</h5>
             <div class="grid grid-cols-3 gap-3 text-xs">
@@ -956,7 +1084,6 @@ Kembalikan HANYA format JSON valid tanpa tanda pembungkus markdown apapun:
             </div>
           </div>
 
-          <!-- LJK Benar / Salah Grid 2 Kolom Sesuai Template Asli -->
           <div class="mb-4 avoid-break font-arab">
             <h5 class="font-bold text-sm mb-2 border-b pb-1">الصَّحِيْحُ وَ الخَطَأُ :</h5>
             <div class="grid grid-cols-2 gap-4 text-xs">
@@ -977,7 +1104,6 @@ Kembalikan HANYA format JSON valid tanpa tanda pembungkus markdown apapun:
             </div>
           </div>
 
-          <!-- LJK Esai Titik-titik Garis Penuh Sesuai Template Asli -->
           <div class="avoid-break font-arab">
             <h5 class="font-bold text-sm mb-2 border-b pb-1">الإِجَابَةُ المَقَالِيَّةُ :</h5>
             ${d.esai.map(item => `
@@ -991,14 +1117,13 @@ Kembalikan HANYA format JSON valid tanpa tanda pembungkus markdown apapun:
           </div>
         `;
       } else if (APP_STATE.activeTab === 'tabKj') {
-        // --- KUNCI JAWABAN (KJ) PERSIS TEMPLATE ASLI ---
         html = `
           <div class="avoid-break font-arab mb-3">
             <table class="table-kop text-xs">
               <tr>
-                <td class="font-bold w-[18%]">المَادَّةُ الدِرَاسِيَّةُ</td>
+                <td class="font-bold w-[18%]">المَADَّةُ الدِرَاسِيَّةُ</td>
                 <td class="w-[32%]">: ${d.meta?.subject || safeGetValue('subjectName')}</td>
-                <td class="font-bold w-[18%]">اليَوْمُ / التَارِيْخُ</td>
+                <td class="font-bold w-[18%]">اليَوْمُ / التَARِيْخُ</td>
                 <td class="w-[32%]">: ........................................</td>
               </tr>
               <tr>
@@ -1012,13 +1137,13 @@ Kembalikan HANYA format JSON valid tanpa tanda pembungkus markdown apapun:
             <div class="text-center my-3">
               ${SMA_LOGO_SVG}
               <div class="font-bold text-base leading-tight mt-1">مِفْتَاحُ إِجَابَةِ الاِخْتِبَارِ النِهَائِيِّ لِلْفَصْلِ الدِرَاسِيِّ الأَوَّلِ</div>
-              <div class="font-bold text-sm leading-tight">مَدْرَسَةُ المِنْهَاجِ الثَانَوِيَةِ العَامَّةِ</div>
+              <div class="font-bold text-sm leading-tight">مَدْرَسَةُ المِنْهَاجِ الثَانَوِيَةِ العَAMَّةِ</div>
               <div class="text-xs text-slate-600">السَنَةُ الدِرَاسِيَّةُ ٢٠٢٦/٢٠٢٧</div>
             </div>
           </div>
 
           <div class="mb-4 avoid-break font-arab">
-            <h5 class="font-bold text-sm mb-2 border-b pb-1">الاخْتِيَارُ المُتَعَدِّدُ (Kunci PG):</h5>
+            <h5 class="font-bold text-sm mb-2 border-b pb-1">الاخْتِيَARُ المُتَعَدِّدُ (Kunci PG):</h5>
             <table class="w-full text-xs border-collapse border border-slate-400">
               <tr class="bg-slate-100 font-bold">
                 ${d.pg.map(item => `<th class="border border-slate-400 p-1 text-center">${item.no}</th>`).join('')}
@@ -1054,7 +1179,6 @@ Kembalikan HANYA format JSON valid tanpa tanda pembungkus markdown apapun:
           </div>
         `;
       } else if (APP_STATE.activeTab === 'tabKisi') {
-        // --- KISI-KISI PSAS PERSIS TEMPLATE ASLI ---
         html = `
           <div class="avoid-break mb-3 text-center">
             ${SMA_LOGO_SVG}
@@ -1118,7 +1242,6 @@ Kembalikan HANYA format JSON valid tanpa tanda pembungkus markdown apapun:
           </div>
         `;
       } else if (APP_STATE.activeTab === 'tabAk') {
-        // --- INSTRUMEN AK TELAAH SILANG DHINIYYAH ---
         html = `
           <div class="avoid-break mb-3 text-center font-indo">
             <h3 class="font-bold text-sm uppercase tracking-wide">INSTRUMEN ANALISIS KUALITATIF (AK) NASKAH SOAL PSAS TA 2026/2027</h3>
@@ -1227,7 +1350,6 @@ Kembalikan HANYA format JSON valid tanpa tanda pembungkus markdown apapun:
       btn.disabled = true;
       btn.innerHTML = `<span>⏳ Menyimpan...</span>`;
 
-      // Konfigurasi Presisi A4 Portrait Margin Narrow 12.7mm
       const opt = {
         margin: [12.7, 12.7, 12.7, 12.7],
         filename: filename,
@@ -1265,7 +1387,6 @@ Kembalikan HANYA format JSON valid tanpa tanda pembungkus markdown apapun:
       }
       const title = `${safeGetValue('subjectName', 'Soal')}_${APP_STATE.activeTab}`;
 
-      // Styling Lengkap Khusus Microsoft Word agar Margin Narrow & Font Arab Tidak Pecah
       const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office'
 xmlns:w='urn:schemas-microsoft-com:office:word'
 xmlns='http://www.w3.org/TR/REC-html40'>
