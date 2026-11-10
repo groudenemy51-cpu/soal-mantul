@@ -7,40 +7,71 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <!-- Parser File (PDF & DOCX) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <!-- Generator Unduh PDF Langsung -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    body { font-family: 'Inter', sans-serif; }
+    body { font-family: 'Calibri', 'Inter', sans-serif; }
     
-    /* Standard Styles for Al-Minhaj Exam Template */
-    .font-indo {
-      font-family: 'Calibri', 'Inter', sans-serif !important;
-      font-size: 12pt !important;
-      line-height: 1.35;
-    }
-
+    /* Font Tradisional Arab ukuran 16pt sesuai standar naskah Dhiniyyah */
     .font-arab {
-      font-family: 'Traditional Arabic', 'Amiri', serif !important;
+      font-family: 'Traditional Arabic', 'Amiri', 'Noto Naskh Arabic', serif !important;
       font-size: 16pt !important;
-      line-height: 1.6;
+      line-height: 1.65 !important;
       direction: rtl;
       text-align: right;
     }
 
-    .rtl-text { direction: rtl; text-align: right; }
-    .ltr-text { direction: ltr; text-align: left; }
-
-    /* Mencegah pemotongan elemen di tengah halaman */
-    .avoid-break {
-      break-inside: avoid;
-      page-break-inside: avoid;
+    /* Font Bahasa Indonesia ukuran 12pt */
+    .font-indo {
+      font-family: 'Calibri', 'Inter', sans-serif !important;
+      font-size: 12pt !important;
+      line-height: 1.35 !important;
     }
 
-    /* Standar Cetak & PDF: Ukuran A4 dengan Batas Tepi Narrow (12.7mm / 0.5in) */
+    .rtl-block {
+      direction: rtl !important;
+      text-align: right !important;
+    }
+
+    .ltr-block {
+      direction: ltr !important;
+      text-align: left !important;
+    }
+
+    /* Tabel Template Persis Standar SMA Al-Minhaj */
+    .table-kop {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 8px;
+    }
+    .table-kop td, .table-kop th {
+      border: 1px solid #1e293b;
+      padding: 3px 6px;
+      vertical-align: middle;
+    }
+
+    .table-bs {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 6px;
+      margin-bottom: 12px;
+    }
+    .table-bs th, .table-bs td {
+      border: 1px solid #000;
+      padding: 4px 8px;
+    }
+
+    /* Mencegah pemotongan elemen di tengah halaman PDF & Cetak */
+    .avoid-break {
+      break-inside: avoid !important;
+      page-break-inside: avoid !important;
+    }
+
+    /* Standar Halaman: Ukuran A4 dengan Batas Tepi Narrow (12.7mm) */
     @page {
       size: A4 portrait;
       margin: 12.7mm;
@@ -56,6 +87,8 @@
         width: 100%;
         margin: 0;
         padding: 12.7mm !important;
+        box-shadow: none !important;
+        border: none !important;
       }
       .no-print { display: none !important; }
     }
@@ -72,7 +105,7 @@
         </div>
         <div>
           <h1 class="font-bold text-lg leading-tight tracking-wide">Al-Minhaj Smart Exam Generator</h1>
-          <p class="text-xs text-emerald-200">Soal • LJK • Kunci Jawaban • Kisi-Kisi • Analisis Kualitatif (AK)</p>
+          <p class="text-xs text-emerald-200">Format Resmi PSAS • Font Arab 16pt / Indo 12pt • Margin Narrow A4</p>
         </div>
       </div>
       
@@ -159,24 +192,23 @@
 
           <!-- Bahasa Pengantar -->
           <div>
-            <label for="inputLanguage" class="block font-semibold text-slate-700 mb-1">Bahasa Pengantar & Format Font</label>
+            <label for="inputLanguage" class="block font-semibold text-slate-700 mb-1">Format Bahasa & Perintah Soal</label>
             <select id="inputLanguage" class="w-full rounded-lg border-slate-300 border p-2 bg-slate-50 text-slate-800 focus:ring-emerald-600 focus:border-emerald-600">
-              <option value="arab">Full Bahasa Arab (Traditional Arabic uk. 16, Opsi أ, ب, ج, د, هـ)</option>
-              <option value="arab-indo" selected>Campuran Arab - Indonesia (Trad. Arabic 16 / Calibri 12)</option>
-              <option value="indo">Bahasa Indonesia (Calibri uk. 12, Opsi A, B, C, D, E)</option>
-              <option value="inggris">Bahasa Inggris (Calibri uk. 12, Opsi A, B, C, D, E)</option>
+              <option value="arab" selected>100% Full Bahasa Arab (Kop, Petunjuk, & Soal Arab Sesuai Template Asli)</option>
+              <option value="arab-indo">Campuran Arab - Indonesia (Kop Tabel Arab-Indo, Trad. Arabic 16 & Calibri 12)</option>
+              <option value="indo">Bahasa Indonesia (Kop Resmi Indonesia, Calibri 12)</option>
+              <option value="inggris">Bahasa Inggris (Calibri 12)</option>
             </select>
           </div>
 
           <!-- Format Layout Dokumen -->
           <div class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-lg text-slate-700 space-y-1">
-            <span class="font-bold text-emerald-900 block">Spesifikasi Format Dokumen:</span>
+            <span class="font-bold text-emerald-900 block">Kesesuaian Standar Template Asli:</span>
             <ul class="list-disc list-inside text-[11px] text-slate-600 space-y-0.5">
-              <li><strong>Ukuran Kertas:</strong> A4 (210 × 297 mm)</li>
-              <li><strong>Batas Tepi (Margin):</strong> Narrow (12.7 mm / 0.5 in)</li>
-              <li><strong>Font Teks Arab:</strong> Traditional Arabic uk. 16pt (RTL)</li>
-              <li><strong>Font Teks Latin:</strong> Calibri uk. 12pt (LTR)</li>
-              <li><strong>Numbering Opsi Arab:</strong> أ ، ب ، ج ، د ، هـ</li>
+              <li><strong>Kop:</strong> Tabel presisi (Mata Pelajaran, Kelas, Hari/Tgl, Guru, Petunjuk/التعليمات) + Logo Resmi.</li>
+              <li><strong>Ukuran & Margin:</strong> A4 portrait dengan margin <strong>Narrow (12.7 mm)</strong>.</li>
+              <li><strong>Font:</strong> Traditional Arabic 16pt (Arab) & Calibri 12pt (Latin).</li>
+              <li><strong>Numbering Pilihan:</strong> Opsi PG Arab (أ ، ب ، ج ، د ، هـ).</li>
             </ul>
           </div>
 
@@ -203,19 +235,19 @@
           <!-- Identitas Mata Pelajaran & Ujian -->
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label for="subjectName" class="block font-semibold text-slate-700 mb-0.5">Mata Pelajaran</label>
-              <input type="text" id="subjectName" value="Bahasa Arab" class="w-full rounded-lg border-slate-300 border p-2 text-slate-800">
+              <label for="subjectName" class="block font-semibold text-slate-700 mb-0.5">Mata Pelajaran (المادة)</label>
+              <input type="text" id="subjectName" value="اللغة العربية" class="w-full rounded-lg border-slate-300 border p-2 text-slate-800">
             </div>
             <div>
-              <label for="targetClass" class="block font-semibold text-slate-700 mb-0.5">Kelas / Jurusan</label>
+              <label for="targetClass" class="block font-semibold text-slate-700 mb-0.5">Kelas (الصف)</label>
               <input type="text" id="targetClass" value="X A" class="w-full rounded-lg border-slate-300 border p-2 text-slate-800">
             </div>
             <div>
-              <label for="teacherName" class="block font-semibold text-slate-700 mb-0.5">Guru Penyusun</label>
+              <label for="teacherName" class="block font-semibold text-slate-700 mb-0.5">Guru Penyusun (أستاذ المادة)</label>
               <input type="text" id="teacherName" value="Husnul Bakti, M.Pd." class="w-full rounded-lg border-slate-300 border p-2 text-slate-800">
             </div>
             <div>
-              <label for="reviewerName" class="block font-semibold text-slate-700 mb-0.5">Guru Penelaah (Verifikator)</label>
+              <label for="reviewerName" class="block font-semibold text-slate-700 mb-0.5">Guru Penelaah (المشرف/Verifikator)</label>
               <input type="text" id="reviewerName" value="Dr. Khalid Yahya Al-Mahdali, MA" class="w-full rounded-lg border-slate-300 border p-2 text-slate-800">
             </div>
           </div>
@@ -276,7 +308,7 @@
           <div class="text-center py-20 text-slate-400">
             <span class="text-4xl block mb-2">📑</span>
             <p class="text-sm font-medium">Belum ada dokumen yang di-generate.</p>
-            <p class="text-xs text-slate-400 mt-1">Format aktif: A4 | Margin Narrow (12.7mm) | Traditional Arabic 16 & Calibri 12.</p>
+            <p class="text-xs text-slate-400 mt-1">Format aktif: A4 | Margin Narrow (12.7mm) | Kop & Perintah Persis Template Asli.</p>
           </div>
         </div>
       </div>
@@ -291,7 +323,7 @@
         <button id="btnCloseApiModal" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
       </div>
       <p class="text-xs text-slate-600 leading-relaxed">
-        Masukkan API Key Google AI Studio Anda. Kunci ini hanya disimpan di browser secara lokal dan dipanggil langsung ke server Google AI.
+        Masukkan API Key Google AI Studio Anda. Kunci ini hanya disimpan di peramban secara lokal dan dipanggil langsung ke server Google AI.
       </p>
       <div>
         <label for="apiKeyInput" class="block text-xs font-semibold text-slate-700 mb-1">API Key</label>
@@ -406,8 +438,7 @@
             for (let i = 1; i <= Math.min(pdf.numPages, 15); i++) {
               const page = await pdf.getPage(i);
               const content = await page.getTextContent();
-              fullText += content.items.map(item => item.str).join(' ') + '
-';
+              fullText += content.items.map(item => item.str).join(' ') + '\n';
             }
             materialText.value = fullText;
           }
@@ -451,7 +482,26 @@
       showAlert("Dihapus", "API Key Gemini telah dihapus.", false);
     });
 
-    // Dummy Cepat Berbahasa Arab & Indo
+    // Logo Resmi SMA Al-Minhaj (SVG Vector Bersih & Ringan)
+    const SMA_LOGO_SVG = `
+      <div style="text-align: center; margin: 6px auto;">
+        <svg width="150" height="92" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg" style="display:inline-block; max-height:85px;">
+          <!-- Outer Arch -->
+          <path d="M 40,80 A 60,60 0 0,1 160,80 L 160,85 A 60,60 0 0,1 40,85 Z" fill="none" stroke="#8b0000" stroke-width="3"/>
+          <!-- Inner Text Frame -->
+          <text x="100" y="24" font-family="'Times New Roman', serif" font-weight="bold" font-size="13" text-anchor="middle" letter-spacing="4" fill="#000">SMA AL MINHAJ</text>
+          <!-- Calligraphy Center -->
+          <text x="100" y="55" font-family="'Amiri', 'Traditional Arabic', serif" font-weight="bold" font-size="21" text-anchor="middle" fill="#1b5e20">معهد منهاج الصحابة</text>
+          <!-- Ribbon Book Base -->
+          <path d="M 35,92 Q 100,78 165,92 L 160,105 Q 100,90 40,105 Z" fill="#111" stroke="#8b0000" stroke-width="1.5"/>
+          <text x="70" y="100" font-family="'Amiri', serif" font-size="11" fill="#fff" font-weight="bold">السنة</text>
+          <text x="130" y="100" font-family="'Amiri', serif" font-size="11" fill="#fff" font-weight="bold">القرآن</text>
+          <text x="100" y="117" font-family="Calibri, sans-serif" font-size="9" text-anchor="middle" fill="#000" font-weight="bold">Bogor - Jawa Barat - Indonesia</text>
+        </svg>
+      </div>
+    `;
+
+    // Dummy Cepat Berbahasa Arab Sesuai Template Asli
     document.getElementById('btnQuickDemo')?.addEventListener('click', () => {
       materialText.value = `Ringkasan Materi Pelajaran Bahasa Arab & Nahwu Kelas X SMA Al-Minhaj:
 1. Al-Hiwar wa Al-Mufradat fi Al-Madrasah (Perkenalan dan interaksi di ma'had).
@@ -461,14 +511,14 @@
 5. Susunan Jumlah Ismiyyah (Mubtada' & Khabar) dan Jumlah Fi'liyyah (Fi'il & Fa'il).`;
 
       APP_STATE.generatedData = generateFallbackExamData({
-        subject: safeGetValue('subjectName', 'Bahasa Arab'),
+        subject: safeGetValue('subjectName', 'اللغة العربية'),
         grade: safeGetValue('targetClass', 'X A'),
         teacher: safeGetValue('teacherName', 'Husnul Bakti, M.Pd.'),
         reviewer: safeGetValue('reviewerName', 'Dr. Khalid Yahya Al-Mahdali, MA'),
-        lang: safeGetValue('inputLanguage', 'arab-indo')
+        lang: safeGetValue('inputLanguage', 'arab')
       });
       renderActiveTab();
-      showAlert("Sukses", "Data contoh format Traditional Arabic 16 & Calibri 12 berhasil dimuat!", false);
+      showAlert("Sukses", "Data contoh format Template Arab resmi SMA Al-Minhaj berhasil dimuat!", false);
     });
 
     // Tombol Generate Utama
@@ -491,11 +541,11 @@
 
       try {
         const payload = {
-          subject: safeGetValue('subjectName', 'Bahasa Arab'),
+          subject: safeGetValue('subjectName', 'اللغة العربية'),
           grade: safeGetValue('targetClass', 'X A'),
           teacher: safeGetValue('teacherName', 'Husnul Bakti, M.Pd.'),
           reviewer: safeGetValue('reviewerName', 'Dr. Khalid Yahya Al-Mahdali, MA'),
-          lang: safeGetValue('inputLanguage', 'arab-indo'),
+          lang: safeGetValue('inputLanguage', 'arab'),
           model: getSelectedModel(),
           reasoning: safeGetValue('reasoningLevel', 'high'),
           pgCount: parseInt(safeGetValue('countPg', 15)) || 15,
@@ -522,44 +572,41 @@
       const selectedModel = config.model || 'gemini-3.8-flash';
       const apiModelEndpoint = selectedModel.replace(/^models\//, '');
 
-      const isArab = config.lang.includes('arab');
-      const optionGuide = isArab 
-        ? "Wajib menggunakan numbering huruf Arab: 'أ. ', 'ب. ', 'ج. ', 'د. ', 'هـ. ' (5 opsi)"
-        : "Gunakan numbering huruf Latin: 'A. ', 'B. ', 'C. ', 'D. ', 'E. ' (5 opsi)";
-
+      const isArab = config.lang === 'arab' || config.lang === 'arab-indo';
+      
       const prompt = `Anda adalah pakar kurikulum dan penyusun evaluasi penilaian SMA Al-Minhaj Bogor.
-Tugas Anda adalah menyusun dokumen PSAS TA 2026/2027 secara lengkap dengan format JSON murni.
+Tugas Anda adalah menyusun dokumen Penilaian Sumatif Akhir Semester (PSAS) TA 2026/2027 secara lengkap dengan format JSON murni.
 
-Kriteria Dokumen & Format Soal:
-- Mata Pelajaran: ${config.subject}
-- Kelas: ${config.grade}
-- Guru Penyusun: ${config.teacher}
-- Penelaah: ${config.reviewer}
-- Mode Bahasa: ${config.lang}
-- Peraturan Khusus Bahasa Arab: Jika teks berbahasa Arab, berikan harakat yang lengkap dan tepat.
-- Format Opsi PG: ${optionGuide}
+FORMAT WAJIB & PERATURAN KHUSUS:
+- Jika Mode Bahasa '${config.lang}' adalah 'arab':
+  * Seluruh teks soal, opsi pilihan ganda, pernyataan benar-salah, dan soal esai WAJIB 100% menggunakan BAHASA ARAB berharakat lengkap dan fasih.
+  * Opsi PG WAJIB menggunakan huruf hijaiyyah 5 pilihan: 'أ. ', 'ب. ', 'ج. ', 'د. ', 'هـ. '
+  * Kunci jawaban PG: أ / ب / ج / د / هـ
+  * Kunci jawaban B-S: ✓ / ✘
+- Jika Mode Bahasa adalah 'arab-indo':
+  * Berikan teks Arab dan sertakan terjemahan / padanan Indonesia di bawahnya.
 - Komposisi: Tepat ${config.pgCount} Soal PG, tepat ${config.bsCount} Soal Benar/Salah (Tabel Kolom), dan tepat ${config.esaiCount} Soal Esai.
-- Referensi Materi:
+- Referensi Materi Pembelajaran:
 ${config.material.substring(0, 5000)}
 
-Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
+Kembalikan HANYA format JSON valid tanpa tanda pembungkus markdown apapun:
 {
-  "meta": { "subject": "${config.subject}", "grade": "${config.grade}", "year": "2026/2027", "semester": "1", "time": "120 Menit" },
+  "meta": { "subject": "${config.subject}", "grade": "${config.grade}", "year": "٢٠٢٦/٢٠٢٧", "semester": "الأَوَّلُ", "time": "١٢٠ دَقِيْقَة" },
   "pg": [
     { 
       "no": 1, 
-      "question_arab": "نص السؤال باللغة العربية...", 
-      "question_indo": "Teks soal terjemahan/bahasa Indonesia...",
+      "question": "نص السؤال باللغة العربية مع الحركات...", 
+      "question_indo": "Terjemahan soal jika mode arab-indo...",
       "options": ["أ. ...", "ب. ...", "ج. ...", "د. ...", "هـ. ..."], 
       "answer": "أ", 
-      "indicator": "Indikator soal..." 
+      "indicator": "Indikator capaian soal..." 
     }
   ],
   "bs": [
     { 
       "no": 1, 
-      "statement_arab": "العبارة باللغة العربية...", 
-      "statement_indo": "Pernyataan bahasa Indonesia...",
+      "statement": "العبارة باللغة العربية مع الحركات...", 
+      "statement_indo": "Pernyataan Indonesia jika mode arab-indo...",
       "answer": "✓", 
       "indicator": "Indikator pernyataan..." 
     }
@@ -567,9 +614,9 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
   "esai": [
     { 
       "no": 1, 
-      "question_arab": "السؤال المقالي...", 
-      "question_indo": "Soal esai bahasa Indonesia...",
-      "answer": "Panduan jawaban / rubrik...", 
+      "question": "السؤال المقالي باللغة العربية...", 
+      "question_indo": "Pertanyaan esai Indonesia...",
+      "answer": "الإجابة النموذجية أو معيار التصحيح...", 
       "indicator": "Indikator esai..." 
     }
   ],
@@ -610,7 +657,7 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
       return JSON.parse(cleanJson);
     }
 
-    // Render Tampilan Tab Dokumen (Font: Traditional Arabic 16pt & Calibri 12pt, Margin Narrow)
+    // Generator Tampilan Dokumen
     function renderActiveTab() {
       const container = document.getElementById('outputContent');
       if (!container || !APP_STATE.generatedData) return;
@@ -623,163 +670,285 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
       let html = '';
 
       if (APP_STATE.activeTab === 'tabSoal') {
-        html = `
-          <!-- KOP SOAL PSAS SMA AL-MINHAJ -->
-          <div class="border-b-2 border-slate-900 pb-2 mb-3 text-center avoid-break font-indo">
-            <h3 class="font-bold text-base tracking-wider uppercase">SMA AL MINHAJ</h3>
-            <h4 class="font-bold text-sm tracking-wide">PENILAIAN SUMATIF AKHIR SEMESTER (PSAS)</h4>
-            <p class="text-xs text-slate-600">TAHUN PELAJARAN 2026/2027</p>
-          </div>
-
-          <table class="w-full text-xs mb-3 avoid-break font-indo">
-            <tr>
-              <td class="w-28 font-semibold py-0.5">Mata Pelajaran</td>
-              <td class="w-3">:</td>
-              <td>${d.meta?.subject || safeGetValue('subjectName')}</td>
-              <td class="w-24 font-semibold">Hari / Tanggal</td>
-              <td class="w-3">:</td>
-              <td>...................</td>
-            </tr>
-            <tr>
-              <td class="font-semibold py-0.5">Kelas</td>
-              <td>:</td>
-              <td>${d.meta?.grade || safeGetValue('targetClass')}</td>
-              <td class="font-semibold">Waktu</td>
-              <td>:</td>
-              <td>120 Menit</td>
-            </tr>
-            <tr>
-              <td class="font-semibold py-0.5">Guru Pengampu</td>
-              <td>:</td>
-              <td>${safeGetValue('teacherName')}</td>
-              <td class="font-semibold">Nama Siswa</td>
-              <td>:</td>
-              <td>...................</td>
-            </tr>
-          </table>
-
-          <div class="p-2 bg-slate-50 border border-slate-200 rounded text-xs mb-4 avoid-break font-indo">
-            <span class="font-bold block mb-0.5">Petunjuk Umum:</span>
-            <ol class="list-decimal list-inside space-y-0.5 text-slate-700">
-              <li>Berdoalah kepada Allah Ta'ala sebelum memulai mengerjakan soal.</li>
-              <li>Periksa dan bacalah lembar soal dengan teliti sebelum menjawab.</li>
-              <li>Dahulukan menjawab soal-soal yang Anda anggap mudah.</li>
-              <li>Periksa kembali jawaban Anda sebelum diserahkan kepada pengawas ujian.</li>
-            </ol>
-          </div>
-
-          <!-- BAGIAN I: PILIHAN GANDA -->
-          <div class="mb-5">
-            <h4 class="font-bold text-xs uppercase bg-slate-100 p-1.5 border-l-4 border-emerald-700 mb-3 avoid-break font-indo">
-              I. PILIHAN GANDA (الاخْتِيَارُ المُتَعَدِّدُ)
-            </h4>
-            <div class="space-y-4">
-              ${d.pg.map(item => {
-                const arabQ = item.question_arab || item.question || '';
-                const indoQ = item.question_indo || '';
-                return `
-                <div class="avoid-break border-b border-slate-100 pb-3">
-                  ${isPureArabic || isMixed ? `<div class="font-arab font-semibold mb-1">${item.no}. ${arabQ}</div>` : ''}
-                  ${!isPureArabic && indoQ ? `<div class="font-indo text-slate-800 mb-1.5">${isPureArabic ? '' : item.no + '. '} ${indoQ}</div>` : (!isPureArabic && !isMixed ? `<div class="font-indo font-medium mb-1.5">${item.no}. ${arabQ}</div>` : '')}
-                  
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-1.5 pt-1 ${isPureArabic || isMixed ? 'font-arab' : 'font-indo pl-4'}">
-                    ${item.options.map(opt => `<div>${opt}</div>`).join('')}
-                  </div>
-                </div>
-              `}).join('')}
-            </div>
-          </div>
-
-          <!-- BAGIAN II: BENAR / SALAH (TABEL KOLOM) -->
-          <div class="mb-5">
-            <h4 class="font-bold text-xs uppercase bg-slate-100 p-1.5 border-l-4 border-emerald-700 mb-2 avoid-break font-indo">
-              II. BENAR ATAU SALAH (الصَّحِيْحُ وَ الخَطَأُ)
-            </h4>
-            <p class="text-xs mb-2 italic avoid-break font-indo">Berikan tanda centang (✔) pada pernyataan yang benar dan tanda silang (✘) pada pernyataan yang salah!</p>
-            <table class="w-full border-collapse border border-slate-300">
-              <thead>
-                <tr class="bg-slate-100 avoid-break font-indo text-xs">
-                  <th class="border border-slate-300 p-1.5 w-10 text-center">No</th>
-                  <th class="border border-slate-300 p-1.5 text-left">Pernyataan (العِبَارَةُ)</th>
-                  <th class="border border-slate-300 p-1.5 w-24 text-center">Jawaban</th>
+        if (isPureArabic) {
+          // --- KOP SOAL FULL ARAB PERSIS TEMPLATE ASLI ---
+          html = `
+            <div class="avoid-break font-arab mb-3">
+              <!-- Tabel Kop Identitas & Petunjuk Sesuai Template Asli -->
+              <table class="table-kop text-xs">
+                <tr>
+                  <td class="font-bold w-[18%]">المَادَّةُ الدِرَاسِيَّةُ</td>
+                  <td class="w-[32%]">: ${d.meta?.subject || safeGetValue('subjectName')}</td>
+                  <td class="font-bold w-[18%]">اليَوْمُ / التَارِيْخُ</td>
+                  <td class="w-[32%]">: ........................................</td>
                 </tr>
-              </thead>
-              <tbody>
-                ${d.bs.map(item => {
-                  const arabSt = item.statement_arab || item.statement || '';
-                  const indoSt = item.statement_indo || '';
-                  return `
-                  <tr class="avoid-break">
-                    <td class="border border-slate-300 p-1.5 text-center font-bold font-indo text-xs">${item.no}</td>
-                    <td class="border border-slate-300 p-1.5">
-                      ${isPureArabic || isMixed ? `<div class="font-arab font-semibold">${arabSt}</div>` : ''}
-                      ${!isPureArabic && indoSt ? `<div class="font-indo text-xs text-slate-700">${indoSt}</div>` : (!isPureArabic && !isMixed ? `<div class="font-indo text-xs">${arabSt}</div>` : '')}
-                    </td>
-                    <td class="border border-slate-300 p-1.5 text-center"></td>
-                  </tr>
-                `}).join('')}
-              </tbody>
-            </table>
-          </div>
+                <tr>
+                  <td class="font-bold">الاِسْمُ</td>
+                  <td>: ........................................</td>
+                  <td class="font-bold">الوَقْتُ</td>
+                  <td>: ١٢٠ دَقِيْقَة</td>
+                </tr>
+                <tr>
+                  <td class="font-bold">الصَفُّ</td>
+                  <td>: ${d.meta?.grade || safeGetValue('targetClass')}</td>
+                  <td class="font-bold">أُسْتَاذُ/ةُ المَادَّةِ</td>
+                  <td>: ${safeGetValue('teacherName')}</td>
+                </tr>
+                <tr>
+                  <td class="font-bold">رَقْمُ الحُضُوْرِ</td>
+                  <td>: ....................</td>
+                  <td class="font-bold">النَتِيْجَةُ</td>
+                  <td>: </td>
+                </tr>
+                <tr>
+                  <td colspan="4" class="p-2 bg-slate-50">
+                    <div class="font-bold mb-1">التَعْلِيْمَاتُ العَامَّةُ :</div>
+                    <ol class="list-decimal pr-5 space-y-0.5 text-xs text-slate-700">
+                      <li>اُدْعُ اللهَ قَبْلَ أَنْ تَبْدَأَ فِيْ حَلِّ الأَسْئِلَةِ.</li>
+                      <li>افْحَصْ وَاقْرَأْ الأَسْئِلَةَ بِعِنَايَةٍ قَبْلَ أَنْ تُجِيْبَ عَنْهَا.</li>
+                      <li>قَدِّمِ الإِجَابَةَ عَنِ الأَسْئِلَةِ الأَسْهَلِ أَوَّلاً.</li>
+                      <li>رَاجِعْ إِجَابَاتِكَ مَرَّةً أُخْرَى قَبْلَ تَسْلِيْمِهَا إِلَى مُرَاقِبِ الاِمْتِحَانِ.</li>
+                    </ol>
+                  </td>
+                </tr>
+              </table>
 
-          <!-- BAGIAN III: ESAI / URAIAN -->
-          <div class="mb-5">
-            <h4 class="font-bold text-xs uppercase bg-slate-100 p-1.5 border-l-4 border-emerald-700 mb-3 avoid-break font-indo">
-              III. ESAI / URAIAN (الإِجَابَةُ المَقَالِيَّةُ)
-            </h4>
-            <div class="space-y-4">
-              ${d.esai.map(item => {
-                const arabEq = item.question_arab || item.question || '';
-                const indoEq = item.question_indo || '';
-                return `
-                <div class="avoid-break">
-                  ${isPureArabic || isMixed ? `<div class="font-arab font-semibold">${item.no}. ${arabEq}</div>` : ''}
-                  ${!isPureArabic && indoEq ? `<div class="font-indo text-slate-800">${item.no}. ${indoEq}</div>` : (!isPureArabic && !isMixed ? `<div class="font-indo text-slate-800">${item.no}. ${arabEq}</div>` : '')}
-                  <div class="h-10 border-b border-dotted border-slate-300"></div>
-                </div>
-              `}).join('')}
+              <!-- Logo Resmi SMA Al-Minhaj & Judul Ujian -->
+              <div class="text-center my-3">
+                ${SMA_LOGO_SVG}
+                <div class="font-bold text-base leading-tight mt-1">الاِخْتِبَارُ النِهَائِيُّ لِلْفَصْلِ الدِرَاسِيِّ الأَوَّلِ</div>
+                <div class="font-bold text-sm leading-tight">مَدْرَسَةُ المِنْهَاجِ الثَانَوِيَةِ العَامَّةِ</div>
+                <div class="text-xs text-slate-600">السَنَةُ الدِرَاسِيَّةُ ٢٠٢٦/٢٠٢٧</div>
+              </div>
+            </div>
+
+            <!-- BAGIAN I: PILIHAN GANDA -->
+            <div class="mb-5 avoid-break">
+              <div class="font-arab font-bold text-sm bg-slate-100 p-2 border-r-4 border-emerald-700 mb-2">
+                اخْتَرْ/يْ الإِجَابَةَ الصَحِيْحَةَ فِيْ وَرَقَةِ الإِجَابَةِ التِيْ تَمَّ تَوْفِيْرُهَا !
+              </div>
+              <div class="space-y-4 font-arab">
+                ${d.pg.map(item => `
+                  <div class="avoid-break border-b border-slate-100 pb-2">
+                    <p class="font-semibold mb-1"><span class="font-bold">${item.no}.</span> ${item.question}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-1.5 pr-4 text-sm">
+                      ${item.options.map(opt => `<div>${opt}</div>`).join('')}
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- BAGIAN II: BENAR / SALAH (TABEL ARAB) -->
+            <div class="mb-5 avoid-break font-arab">
+              <div class="font-bold text-sm bg-slate-100 p-2 border-r-4 border-emerald-700 mb-2">
+                ضَعْ/ي عَلَامَةَ (✔) عَلىَ الإِجَابَةِ الصَحِيْحَةِ وَعَلَامَةِ (✘) عَلَى الإِجَابَةِ الخَاطِئَةِ فِيْ وَرَقَةِ الإِجَابَةِ التِيْ تَمَّ تَوْفِيْرُهَا !
+              </div>
+              <table class="table-bs text-xs">
+                <thead>
+                  <tr class="bg-slate-100 font-bold">
+                    <th class="w-12 text-center">الرَقْمُ</th>
+                    <th class="text-right pr-3">العِبَارَةُ</th>
+                    <th class="w-24 text-center">الإِجَابَةُ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${d.bs.map(item => `
+                    <tr class="avoid-break">
+                      <td class="text-center font-bold">${item.no}</td>
+                      <td class="pr-2 font-semibold">${item.statement}</td>
+                      <td class="text-center"></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- BAGIAN III: ESAI -->
+            <div class="mb-5 avoid-break font-arab">
+              <div class="font-bold text-sm bg-slate-100 p-2 border-r-4 border-emerald-700 mb-2">
+                اكتب/ي الإجابات الصحيحة للأسئلة التالية!
+              </div>
+              <div class="space-y-4">
+                ${d.esai.map(item => `
+                  <div class="avoid-break">
+                    <p class="font-semibold"><span class="font-bold">${item.no}.</span> ${item.question}</p>
+                    <div class="h-10 border-b border-dotted border-slate-400"></div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        } else {
+          // --- KOP SOAL CAMPURAN ARAB-INDO / INDO RESMI ---
+          html = `
+            <div class="avoid-break font-indo mb-3">
+              <table class="table-kop text-xs">
+                <tr>
+                  <td class="font-semibold w-[20%]">Mata Pelajaran (المادة)</td>
+                  <td class="w-[30%]">: ${d.meta?.subject || safeGetValue('subjectName')}</td>
+                  <td class="font-semibold w-[20%]">Hari / Tanggal (اليوم)</td>
+                  <td class="w-[30%]">: ........................................</td>
+                </tr>
+                <tr>
+                  <td class="font-semibold">Nama Siswa (الاسم)</td>
+                  <td>: ........................................</td>
+                  <td class="font-semibold">Alokasi Waktu (الوقت)</td>
+                  <td>: 120 Menit</td>
+                </tr>
+                <tr>
+                  <td class="font-semibold">Kelas (الصف)</td>
+                  <td>: ${d.meta?.grade || safeGetValue('targetClass')}</td>
+                  <td class="font-semibold">Guru Pengampu (الأستاذ)</td>
+                  <td>: ${safeGetValue('teacherName')}</td>
+                </tr>
+                <tr>
+                  <td class="font-semibold">No. Peserta (رقم الحضور)</td>
+                  <td>: ....................</td>
+                  <td class="font-semibold">Nilai (النتيجة)</td>
+                  <td>: </td>
+                </tr>
+                <tr>
+                  <td colspan="4" class="p-2 bg-slate-50">
+                    <span class="font-bold block mb-1">Petunjuk Umum (التعليمات العامة) :</span>
+                    <ol class="list-decimal list-inside space-y-0.5 text-xs text-slate-700">
+                      <li>Berdoalah kepada Allah Ta'ala sebelum memulai mengerjakan soal.</li>
+                      <li>Periksa dan bacalah lembar soal dengan teliti sebelum menjawab.</li>
+                      <li>Dahulukan menjawab soal-soal yang Anda anggap mudah.</li>
+                      <li>Periksa kembali jawaban Anda sebelum diserahkan kepada pengawas ujian.</li>
+                    </ol>
+                  </td>
+                </tr>
+              </table>
+
+              <div class="text-center my-3">
+                ${SMA_LOGO_SVG}
+                <div class="font-bold text-base leading-tight mt-1">PENILAIAN SUMATIF AKHIR SEMESTER (PSAS)</div>
+                <div class="font-bold text-sm leading-tight">SMA AL MINHAJ • TAHUN PELAJARAN 2026/2027</div>
+              </div>
+            </div>
+
+            <!-- BAGIAN I: PILIHAN GANDA -->
+            <div class="mb-5 avoid-break">
+              <h4 class="font-bold text-xs uppercase bg-slate-100 p-1.5 border-l-4 border-emerald-700 mb-3 font-indo">
+                I. PILIHAN GANDA (الاخْتِيَارُ المُتَعَدِّدُ)
+              </h4>
+              <div class="space-y-4">
+                ${d.pg.map(item => `
+                  <div class="avoid-break border-b border-slate-100 pb-2">
+                    ${item.question ? `<div class="font-arab font-semibold mb-1">${item.no}. ${item.question}</div>` : ''}
+                    ${item.question_indo ? `<div class="font-indo text-slate-700 text-xs mb-1.5">${item.question_indo}</div>` : ''}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-1.5 pt-1 ${isMixed ? 'font-arab' : 'font-indo pl-4'}">
+                      ${item.options.map(opt => `<div>${opt}</div>`).join('')}
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- BAGIAN II: BENAR / SALAH -->
+            <div class="mb-5 avoid-break font-indo">
+              <h4 class="font-bold text-xs uppercase bg-slate-100 p-1.5 border-l-4 border-emerald-700 mb-2">
+                II. BENAR ATAU SALAH (الصَّحِيْحُ وَ الخَطَأُ)
+              </h4>
+              <p class="text-xs mb-2 italic">Berikan tanda centang (✔) pada pernyataan yang benar dan tanda silang (✘) pada pernyataan yang salah!</p>
+              <table class="table-bs text-xs">
+                <thead>
+                  <tr class="bg-slate-100 font-bold">
+                    <th class="w-10 text-center">No</th>
+                    <th class="text-left pl-2">Pernyataan / العِبَارَةُ</th>
+                    <th class="w-24 text-center">Jawaban</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${d.bs.map(item => `
+                    <tr class="avoid-break">
+                      <td class="text-center font-bold">${item.no}</td>
+                      <td class="pl-2">
+                        ${item.statement ? `<div class="font-arab font-semibold">${item.statement}</div>` : ''}
+                        ${item.statement_indo ? `<div class="text-xs text-slate-700">${item.statement_indo}</div>` : ''}
+                      </td>
+                      <td class="text-center"></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- BAGIAN III: ESAI -->
+            <div class="mb-5 avoid-break font-indo">
+              <h4 class="font-bold text-xs uppercase bg-slate-100 p-1.5 border-l-4 border-emerald-700 mb-2">
+                III. ESAI / URAIAN (الإِجَابَةُ المَقَالِيَّةُ)
+              </h4>
+              <div class="space-y-4">
+                ${d.esai.map(item => `
+                  <div class="avoid-break">
+                    ${item.question ? `<div class="font-arab font-semibold">${item.no}. ${item.question}</div>` : ''}
+                    ${item.question_indo ? `<div class="text-slate-800 text-xs">${item.no}. ${item.question_indo}</div>` : ''}
+                    <div class="h-10 border-b border-dotted border-slate-400"></div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+      } else if (APP_STATE.activeTab === 'tabLjk') {
+        // --- LEMBAR JAWABAN (LJK) PERSIS TEMPLATE ASLI ---
+        html = `
+          <div class="avoid-break font-arab mb-3">
+            <table class="table-kop text-xs">
+              <tr>
+                <td class="font-bold w-[18%]">المَادَّةُ الدِرَاسِيَّةُ</td>
+                <td class="w-[32%]">: ${d.meta?.subject || safeGetValue('subjectName')}</td>
+                <td class="font-bold w-[18%]">اليَوْمُ / التَارِيْخُ</td>
+                <td class="w-[32%]">: ........................................</td>
+              </tr>
+              <tr>
+                <td class="font-bold">الاِسْمُ</td>
+                <td>: ........................................</td>
+                <td class="font-bold">الوَقْتُ</td>
+                <td>: ١٢٠ دَقِيْقَة</td>
+              </tr>
+              <tr>
+                <td class="font-bold">الصَفُّ</td>
+                <td>: ${d.meta?.grade || safeGetValue('targetClass')}</td>
+                <td class="font-bold">أُسْتَاذُ/ةُ المَادَّةِ</td>
+                <td>: ${safeGetValue('teacherName')}</td>
+              </tr>
+              <tr>
+                <td class="font-bold">رَقْمُ الحُضُوْرِ</td>
+                <td>: ....................</td>
+                <td class="font-bold">النَتِيْجَةُ</td>
+                <td>: </td>
+              </tr>
+            </table>
+
+            <div class="text-center my-3">
+              ${SMA_LOGO_SVG}
+              <div class="font-bold text-base leading-tight mt-1">مِفْتَاحُ إِجَابَةِ الاِخْتِبَارِ النِهَائِيِّ لِلْفَصْلِ الدِرَاسِيِّ الأَوَّلِ</div>
+              <div class="font-bold text-sm leading-tight">مَدْرَسَةُ المِنْهَاجِ الثَانَوِيَةِ العَامَّةِ</div>
+              <div class="text-xs text-slate-600">السَنَةُ الدِرَاسِيَّةُ ٢٠٢٦/٢٠٢٧</div>
             </div>
           </div>
-        `;
-      } else if (APP_STATE.activeTab === 'tabLjk') {
-        html = `
-          <div class="border-b-2 border-slate-900 pb-2 mb-3 text-center avoid-break font-indo">
-            <h3 class="font-bold text-sm tracking-wider uppercase">LEMBAR JAWABAN KOMPUTER / MANUAL (LJK)</h3>
-            <h4 class="font-bold text-xs">SMA AL MINHAJ • PSAS 2026/2027</h4>
-          </div>
 
-          <table class="w-full text-xs mb-3 avoid-break font-indo">
-            <tr>
-              <td class="w-24 font-semibold">Nama Siswa</td><td class="w-3">:</td><td>........................................</td>
-              <td class="w-24 font-semibold">Kelas</td><td class="w-3">:</td><td>${safeGetValue('targetClass')}</td>
-            </tr>
-            <tr>
-              <td class="font-semibold">Mata Pelajaran</td><td>:</td><td>${safeGetValue('subjectName')}</td>
-              <td class="font-semibold">No. Absen</td><td>:</td><td>...................</td>
-            </tr>
-          </table>
-
-          <div class="mb-4 avoid-break font-indo">
-            <h5 class="font-bold text-xs mb-2">Jawaban Pilihan Ganda (أ ، ب ، ج ، د ، هـ):</h5>
+          <!-- LJK Pilihan Ganda Grid 3 Kolom -->
+          <div class="mb-4 avoid-break font-arab">
+            <h5 class="font-bold text-sm mb-2 border-b pb-1">الاخْتِيَارُ المُتَعَدِّدُ :</h5>
             <div class="grid grid-cols-3 gap-3 text-xs">
               ${[0, 1, 2].map(colIdx => `
-                <table class="w-full border-collapse border border-slate-300">
-                  <tr class="bg-slate-100">
-                    <th class="border border-slate-300 p-1">No</th>
-                    <th class="border border-slate-300 p-1 text-center font-arab">أ</th>
-                    <th class="border border-slate-300 p-1 text-center font-arab">ب</th>
-                    <th class="border border-slate-300 p-1 text-center font-arab">ج</th>
-                    <th class="border border-slate-300 p-1 text-center font-arab">د</th>
-                    <th class="border border-slate-300 p-1 text-center font-arab">هـ</th>
+                <table class="w-full border-collapse border border-slate-400">
+                  <tr class="bg-slate-100 font-bold">
+                    <th class="border border-slate-400 p-1 w-10 text-center">الرقم</th>
+                    <th colspan="5" class="border border-slate-400 p-1 text-center">الإجابة</th>
                   </tr>
                   ${d.pg.slice(colIdx * 5, (colIdx + 1) * 5).map(item => `
                     <tr>
-                      <td class="border border-slate-300 p-1 text-center font-bold">${item.no}</td>
-                      <td class="border border-slate-300 p-1 text-center">○</td>
-                      <td class="border border-slate-300 p-1 text-center">○</td>
-                      <td class="border border-slate-300 p-1 text-center">○</td>
-                      <td class="border border-slate-300 p-1 text-center">○</td>
-                      <td class="border border-slate-300 p-1 text-center">○</td>
+                      <td class="border border-slate-400 p-1 text-center font-bold">${item.no}</td>
+                      <td class="border border-slate-400 p-1 text-center">أ</td>
+                      <td class="border border-slate-400 p-1 text-center">ب</td>
+                      <td class="border border-slate-400 p-1 text-center">ج</td>
+                      <td class="border border-slate-400 p-1 text-center">د</td>
+                      <td class="border border-slate-400 p-1 text-center">هـ</td>
                     </tr>
                   `).join('')}
                 </table>
@@ -787,102 +956,145 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
             </div>
           </div>
 
-          <div class="mb-4 avoid-break font-indo">
-            <h5 class="font-bold text-xs mb-2">Jawaban Benar / Salah (الصَّحِيْحُ وَ الخَطَأُ):</h5>
-            <table class="w-full text-xs border-collapse border border-slate-300">
-              <tr class="bg-slate-100">
-                <th class="border border-slate-300 p-1 w-12 text-center">No</th>
-                <th class="border border-slate-300 p-1 text-center">Benar (✔)</th>
-                <th class="border border-slate-300 p-1 text-center">Salah (✘)</th>
-              </tr>
-              ${d.bs.map(item => `
-                <tr>
-                  <td class="border border-slate-300 p-1 text-center font-bold">${item.no}</td>
-                  <td class="border border-slate-300 p-1 text-center h-5"></td>
-                  <td class="border border-slate-300 p-1 text-center h-5"></td>
-                </tr>
+          <!-- LJK Benar / Salah Grid 2 Kolom Sesuai Template Asli -->
+          <div class="mb-4 avoid-break font-arab">
+            <h5 class="font-bold text-sm mb-2 border-b pb-1">الصَّحِيْحُ وَ الخَطَأُ :</h5>
+            <div class="grid grid-cols-2 gap-4 text-xs">
+              ${[0, 1].map(colIdx => `
+                <table class="w-full border-collapse border border-slate-400">
+                  <tr class="bg-slate-100 font-bold">
+                    <th class="border border-slate-400 p-1 w-12 text-center">الرقم</th>
+                    <th class="border border-slate-400 p-1 text-center">الإجابة</th>
+                  </tr>
+                  ${d.bs.slice(colIdx * 5, (colIdx + 1) * 5).map(item => `
+                    <tr>
+                      <td class="border border-slate-400 p-1 text-center font-bold">${item.no}</td>
+                      <td class="border border-slate-400 p-1 text-center h-6"></td>
+                    </tr>
+                  `).join('')}
+                </table>
               `).join('')}
-            </table>
+            </div>
           </div>
 
-          <div class="avoid-break font-indo">
-            <h5 class="font-bold text-xs mb-2">Jawaban Esai / Uraian (الإِجَابَةُ المَقَالِيَّةُ):</h5>
+          <!-- LJK Esai Titik-titik Garis Penuh Sesuai Template Asli -->
+          <div class="avoid-break font-arab">
+            <h5 class="font-bold text-sm mb-2 border-b pb-1">الإِجَابَةُ المَقَالِيَّةُ :</h5>
             ${d.esai.map(item => `
-              <div class="mb-2">
-                <span class="text-xs font-bold">${item.no}.</span>
-                <div class="h-10 border-b border-dotted border-slate-400"></div>
+              <div class="mb-3 text-xs">
+                <span class="font-bold">${item.no}. </span>
+                <p class="border-b border-dotted border-slate-400 h-5 mb-1"></p>
+                <p class="border-b border-dotted border-slate-400 h-5 mb-1"></p>
+                <p class="border-b border-dotted border-slate-400 h-5 mb-1"></p>
               </div>
             `).join('')}
           </div>
         `;
       } else if (APP_STATE.activeTab === 'tabKj') {
+        // --- KUNCI JAWABAN (KJ) PERSIS TEMPLATE ASLI ---
         html = `
-          <div class="border-b-2 border-slate-900 pb-2 mb-3 text-center avoid-break font-indo">
-            <h3 class="font-bold text-sm tracking-wider uppercase">KUNCI JAWABAN & PEDOMAN PENSKORAN</h3>
-            <h4 class="font-bold text-xs">SMA AL MINHAJ • TA 2026/2027</h4>
-          </div>
-
-          <div class="mb-4 avoid-break font-indo">
-            <h5 class="font-bold text-xs mb-2">Kunci Pilihan Ganda:</h5>
-            <table class="w-full text-xs border-collapse border border-slate-300">
-              <tr class="bg-slate-100">
-                ${d.pg.map(item => `<th class="border border-slate-300 p-1 text-center">${item.no}</th>`).join('')}
+          <div class="avoid-break font-arab mb-3">
+            <table class="table-kop text-xs">
+              <tr>
+                <td class="font-bold w-[18%]">المَادَّةُ الدِرَاسِيَّةُ</td>
+                <td class="w-[32%]">: ${d.meta?.subject || safeGetValue('subjectName')}</td>
+                <td class="font-bold w-[18%]">اليَوْمُ / التَارِيْخُ</td>
+                <td class="w-[32%]">: ........................................</td>
               </tr>
               <tr>
-                ${d.pg.map(item => `<td class="border border-slate-300 p-1 text-center font-bold text-emerald-800 font-arab">${item.answer}</td>`).join('')}
+                <td class="font-bold">الصَفُّ</td>
+                <td>: ${d.meta?.grade || safeGetValue('targetClass')}</td>
+                <td class="font-bold">أُسْتَاذُ/ةُ المَادَّةِ</td>
+                <td>: ${safeGetValue('teacherName')}</td>
+              </tr>
+            </table>
+
+            <div class="text-center my-3">
+              ${SMA_LOGO_SVG}
+              <div class="font-bold text-base leading-tight mt-1">مِفْتَاحُ إِجَابَةِ الاِخْتِبَارِ النِهَائِيِّ لِلْفَصْلِ الدِرَاسِيِّ الأَوَّلِ</div>
+              <div class="font-bold text-sm leading-tight">مَدْرَسَةُ المِنْهَاجِ الثَانَوِيَةِ العَامَّةِ</div>
+              <div class="text-xs text-slate-600">السَنَةُ الدِرَاسِيَّةُ ٢٠٢٦/٢٠٢٧</div>
+            </div>
+          </div>
+
+          <div class="mb-4 avoid-break font-arab">
+            <h5 class="font-bold text-sm mb-2 border-b pb-1">الاخْتِيَارُ المُتَعَدِّدُ (Kunci PG):</h5>
+            <table class="w-full text-xs border-collapse border border-slate-400">
+              <tr class="bg-slate-100 font-bold">
+                ${d.pg.map(item => `<th class="border border-slate-400 p-1 text-center">${item.no}</th>`).join('')}
+              </tr>
+              <tr>
+                ${d.pg.map(item => `<td class="border border-slate-400 p-1 text-center font-bold text-emerald-800 text-sm">${item.answer}</td>`).join('')}
               </tr>
             </table>
           </div>
 
-          <div class="mb-4 avoid-break font-indo">
-            <h5 class="font-bold text-xs mb-2">Kunci Benar / Salah:</h5>
-            <table class="w-full text-xs border-collapse border border-slate-300">
-              <tr class="bg-slate-100">
-                ${d.bs.map(item => `<th class="border border-slate-300 p-1 text-center">${item.no}</th>`).join('')}
+          <div class="mb-4 avoid-break font-arab">
+            <h5 class="font-bold text-sm mb-2 border-b pb-1">الصَّحِيْحُ وَ الخَطَأُ (Kunci B-S):</h5>
+            <table class="w-full text-xs border-collapse border border-slate-400">
+              <tr class="bg-slate-100 font-bold">
+                ${d.bs.map(item => `<th class="border border-slate-400 p-1 text-center">${item.no}</th>`).join('')}
               </tr>
               <tr>
-                ${d.bs.map(item => `<td class="border border-slate-300 p-1 text-center font-bold text-emerald-800">${item.answer}</td>`).join('')}
+                ${d.bs.map(item => `<td class="border border-slate-400 p-1 text-center font-bold text-emerald-800 text-sm">${item.answer}</td>`).join('')}
               </tr>
             </table>
           </div>
 
-          <div class="mb-4 font-indo">
-            <h5 class="font-bold text-xs mb-2 avoid-break">Rubrik Jawaban Esai:</h5>
+          <div class="mb-4 font-arab">
+            <h5 class="font-bold text-sm mb-2 border-b pb-1 avoid-break">الإِجَابَةُ المَقَالِيَّةُ (Rubrik Esai):</h5>
             <div class="space-y-2 text-xs">
               ${d.esai.map(item => `
                 <div class="p-2 border border-slate-200 rounded bg-slate-50 avoid-break">
-                  <div class="font-bold text-slate-800">Soal No. ${item.no}: ${item.question_arab || item.question || ''}</div>
-                  <div class="text-emerald-800 mt-1"><span class="font-semibold">Kunci:</span> ${item.answer}</div>
+                  <div class="font-bold text-slate-800">السؤال ${item.no}: ${item.question}</div>
+                  <div class="text-emerald-800 mt-1"><span class="font-bold">الإجابة:</span> ${item.answer}</div>
                 </div>
               `).join('')}
             </div>
           </div>
         `;
       } else if (APP_STATE.activeTab === 'tabKisi') {
+        // --- KISI-KISI PSAS PERSIS TEMPLATE ASLI ---
         html = `
-          <div class="border-b-2 border-slate-900 pb-2 mb-3 text-center avoid-break font-indo">
-            <h3 class="font-bold text-sm tracking-wider uppercase">KISI-KISI PENILAIAN SUMATIF AKHIR SEMESTER</h3>
+          <div class="avoid-break mb-3 text-center">
+            ${SMA_LOGO_SVG}
+            <h3 class="font-bold text-sm uppercase tracking-wide">KISI-KISI PENILAIAN SUMATIF AKHIR SEMESTER</h3>
             <h4 class="font-bold text-xs">SMA AL MINHAJ • TAHUN PELAJARAN 2026/2027</h4>
           </div>
 
-          <table class="w-full text-xs border-collapse border border-slate-300 mb-6 font-indo">
+          <table class="w-full text-xs mb-3 font-indo">
+            <tr>
+              <td class="w-28 font-semibold">Mata Pelajaran</td><td class="w-3">:</td><td>${d.meta?.subject || safeGetValue('subjectName')}</td>
+              <td class="w-24 font-semibold">Bentuk Soal</td><td class="w-3">:</td><td>PG, B-S, Esai</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Kelas</td><td>:</td><td>${d.meta?.grade || safeGetValue('targetClass')}</td>
+              <td class="font-semibold">Jumlah Soal</td><td>:</td><td>${(d.pg.length + d.bs.length + d.esai.length)}</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Semester</td><td>:</td><td>1 (Ganjil)</td>
+              <td class="font-semibold">Alokasi Waktu</td><td>:</td><td>120 Menit</td>
+            </tr>
+          </table>
+
+          <table class="w-full text-xs border-collapse border border-slate-400 mb-6 font-indo">
             <thead>
-              <tr class="bg-slate-100 avoid-break">
-                <th class="border border-slate-300 p-2 w-10 text-center">No</th>
-                <th class="border border-slate-300 p-2 text-left">Materi Pokok</th>
-                <th class="border border-slate-300 p-2 text-left">Indikator Soal</th>
-                <th class="border border-slate-300 p-2 w-16 text-center">Bentuk</th>
-                <th class="border border-slate-300 p-2 w-14 text-center">No. Soal</th>
+              <tr class="bg-slate-100 avoid-break font-bold">
+                <th class="border border-slate-400 p-2 w-10 text-center">No</th>
+                <th class="border border-slate-400 p-2 text-left">Materi Pokok</th>
+                <th class="border border-slate-400 p-2 text-left">Indikator Soal</th>
+                <th class="border border-slate-400 p-2 w-14 text-center">No. Soal</th>
+                <th class="border border-slate-400 p-2 w-16 text-center">Bentuk</th>
               </tr>
             </thead>
             <tbody>
               ${d.kisi_kisi.map(item => `
                 <tr class="avoid-break">
-                  <td class="border border-slate-300 p-1.5 text-center">${item.no}</td>
-                  <td class="border border-slate-300 p-1.5">${item.materi}</td>
-                  <td class="border border-slate-300 p-1.5">${item.indikator}</td>
-                  <td class="border border-slate-300 p-1.5 text-center font-semibold">${item.bentuk}</td>
-                  <td class="border border-slate-300 p-1.5 text-center">${item.no_soal}</td>
+                  <td class="border border-slate-400 p-1.5 text-center">${item.no}</td>
+                  <td class="border border-slate-400 p-1.5">${item.materi}</td>
+                  <td class="border border-slate-400 p-1.5">${item.indikator}</td>
+                  <td class="border border-slate-400 p-1.5 text-center font-bold">${item.no_soal}</td>
+                  <td class="border border-slate-400 p-1.5 text-center font-semibold">${item.bentuk}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -897,8 +1109,8 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
               <p class="text-[10px] text-slate-500">NUPTK. 9659771672130032</p>
             </div>
             <div>
-              <p>Bogor, 30 Agustus 2026</p>
-              <p class="font-bold">Guru Penyusun,</p>
+              <p>Kab. Bogor, 30 Agustus 2026</p>
+              <p class="font-bold">Penyusun,</p>
               <div class="h-16"></div>
               <p class="font-bold underline">${safeGetValue('teacherName')}</p>
               <p class="text-[10px] text-slate-500">NUPTK. -</p>
@@ -906,57 +1118,58 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
           </div>
         `;
       } else if (APP_STATE.activeTab === 'tabAk') {
+        // --- INSTRUMEN AK TELAAH SILANG DHINIYYAH ---
         html = `
-          <div class="border-b-2 border-slate-900 pb-2 mb-3 text-center avoid-break font-indo">
-            <h3 class="font-bold text-sm tracking-wider uppercase">INSTRUMEN ANALISIS KUALITATIF (AK) TELAAH NASKAH SOAL</h3>
-            <h4 class="font-bold text-xs">VERIFIKASI & PEER REVIEW TELAAH SILANG GURU DHINIYYAH</h4>
+          <div class="avoid-break mb-3 text-center font-indo">
+            <h3 class="font-bold text-sm uppercase tracking-wide">INSTRUMEN ANALISIS KUALITATIF (AK) NASKAH SOAL PSAS TA 2026/2027</h3>
+            <h4 class="font-bold text-xs text-slate-700">PEMETAAN PENELAAH SILANG (PEER REVIEW) GURU DHINIYYAH</h4>
           </div>
 
           <table class="w-full text-xs mb-3 avoid-break font-indo">
             <tr>
-              <td class="w-32 font-semibold">Guru Penyusun</td><td class="w-3">:</td><td>${safeGetValue('teacherName')}</td>
-              <td class="w-32 font-semibold">Guru Penelaah</td><td class="w-3">:</td><td>${safeGetValue('reviewerName')}</td>
+              <td class="w-32 font-semibold">Guru Penyusun Soal</td><td class="w-3">:</td><td>${safeGetValue('teacherName')}</td>
+              <td class="w-32 font-semibold">Guru Penelaah (Verifikator)</td><td class="w-3">:</td><td>${safeGetValue('reviewerName')}</td>
             </tr>
             <tr>
               <td class="font-semibold">Mata Pelajaran</td><td>:</td><td>${safeGetValue('subjectName')}</td>
-              <td class="font-semibold">Kelas</td><td>:</td><td>${safeGetValue('targetClass')}</td>
+              <td class="font-semibold">Kelas yang Diampu</td><td>:</td><td>${safeGetValue('targetClass')}</td>
             </tr>
           </table>
 
-          <table class="w-full text-xs border-collapse border border-slate-300 mb-3 font-indo">
+          <table class="w-full text-xs border-collapse border border-slate-400 mb-3 font-indo">
             <thead>
-              <tr class="bg-slate-100 avoid-break">
-                <th class="border border-slate-300 p-2 w-10 text-center">No</th>
-                <th class="border border-slate-300 p-2 text-left">Aspek / Kriteria Telaah</th>
-                <th class="border border-slate-300 p-2 text-left">Hasil Analisis AI & Verifikator</th>
-                <th class="border border-slate-300 p-2 w-20 text-center">Status</th>
+              <tr class="bg-slate-100 avoid-break font-bold">
+                <th class="border border-slate-400 p-2 w-10 text-center">No</th>
+                <th class="border border-slate-400 p-2 text-left">Fokus / Aspek Telaah Kualitatif</th>
+                <th class="border border-slate-400 p-2 text-left">Hasil Telaah Verifikator</th>
+                <th class="border border-slate-400 p-2 w-24 text-center">Status Telaah</th>
               </tr>
             </thead>
             <tbody>
               <tr class="avoid-break">
-                <td class="border border-slate-300 p-2 text-center font-bold">1</td>
-                <td class="border border-slate-300 p-2 font-semibold">Materi & Kesesuaian Kurikulum</td>
-                <td class="border border-slate-300 p-2">${d.analisis_kualitatif?.kaidah_materi || 'Sesuai silabus'}</td>
-                <td class="border border-slate-300 p-2 text-center text-emerald-700 font-bold">Diterima</td>
+                <td class="border border-slate-400 p-2 text-center font-bold">1</td>
+                <td class="border border-slate-400 p-2 font-semibold">Kaidah Nahwu & Balaghah / Kesesuaian Kurikulum</td>
+                <td class="border border-slate-400 p-2">${d.analisis_kualitatif?.kaidah_materi || 'Sesuai silabus'}</td>
+                <td class="border border-slate-400 p-2 text-center text-emerald-700 font-bold">Selesai (Diterima)</td>
               </tr>
               <tr class="avoid-break">
-                <td class="border border-slate-300 p-2 text-center font-bold">2</td>
-                <td class="border border-slate-300 p-2 font-semibold">Konstruksi Butir Soal</td>
-                <td class="border border-slate-300 p-2">${d.analisis_kualitatif?.kaidah_konstruksi || 'Pokok soal jelas'}</td>
-                <td class="border border-slate-300 p-2 text-center text-emerald-700 font-bold">Diterima</td>
+                <td class="border border-slate-400 p-2 text-center font-bold">2</td>
+                <td class="border border-slate-400 p-2 font-semibold">Konstruksi Butir Soal (Opsi أ-هـ & Tabel B-S)</td>
+                <td class="border border-slate-400 p-2">${d.analisis_kualitatif?.kaidah_konstruksi || 'Pokok soal jelas'}</td>
+                <td class="border border-slate-400 p-2 text-center text-emerald-700 font-bold">Selesai (Diterima)</td>
               </tr>
               <tr class="avoid-break">
-                <td class="border border-slate-300 p-2 text-center font-bold">3</td>
-                <td class="border border-slate-300 p-2 font-semibold">Bahasa, Kaidah Nahwu, Sharaf & Imla</td>
-                <td class="border border-slate-300 p-2">${d.analisis_kualitatif?.kaidah_bahasa || 'Tata bahasa tepat'}</td>
-                <td class="border border-slate-300 p-2 text-center text-emerald-700 font-bold">Diterima</td>
+                <td class="border border-slate-400 p-2 text-center font-bold">3</td>
+                <td class="border border-slate-400 p-2 font-semibold">Ketepatan Imla', Sharaf & Rasm Arab</td>
+                <td class="border border-slate-400 p-2">${d.analisis_kualitatif?.kaidah_bahasa || 'Tata bahasa tepat'}</td>
+                <td class="border border-slate-400 p-2 text-center text-emerald-700 font-bold">Selesai (Diterima)</td>
               </tr>
             </tbody>
           </table>
 
           <div class="p-3 bg-emerald-50 border border-emerald-200 rounded text-xs avoid-break font-indo">
-            <span class="font-bold text-emerald-900 block mb-1">Rekomendasi Hasil Telaah Silang:</span>
-            <p class="text-emerald-800">${d.analisis_kualitatif?.catatan_revisi || 'Naskah soal memenuhi standar mutu dan siap dicetak.'}</p>
+            <span class="font-bold text-emerald-900 block mb-1">Rekomendasi Hasil Verifikasi Telaah Silang:</span>
+            <p class="text-emerald-800">${d.analisis_kualitatif?.catatan_revisi || 'Naskah soal memenuhi standar mutu telaah silang Dhiniyyah SMA Al-Minhaj dan siap dicetak.'}</p>
           </div>
         `;
       }
@@ -1014,9 +1227,9 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
       btn.disabled = true;
       btn.innerHTML = `<span>⏳ Menyimpan...</span>`;
 
-      // Konfigurasi Standar: A4 Portrait, Margin Narrow (12.7mm = 0.5 inci)
+      // Konfigurasi Presisi A4 Portrait Margin Narrow 12.7mm
       const opt = {
-        margin: [12.7, 12.7, 12.7, 12.7], // Atas, Kiri, Bawah, Kanan (mm)
+        margin: [12.7, 12.7, 12.7, 12.7],
         filename: filename,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { 
@@ -1035,7 +1248,7 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
       html2pdf().set(opt).from(element).save().then(() => {
         btn.disabled = false;
         btn.innerHTML = originalText;
-        showAlert("Berhasil", "File PDF A4 (Narrow Margin) berhasil dibuat dan langsung diunduh!", false);
+        showAlert("Berhasil", "File PDF A4 (Format Presisi Template) berhasil diunduh!", false);
       }).catch((err) => {
         btn.disabled = false;
         btn.innerHTML = originalText;
@@ -1043,7 +1256,7 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
       });
     });
 
-    // Download Word (.doc) dengan Pengaturan Margin Narrow & Font Sesuai
+    // Unduh File Word (.doc) Sesuai Presisi Template (Margin Narrow, Traditional Arabic 16, Calibri 12)
     document.getElementById('btnDownloadDoc')?.addEventListener('click', () => {
       const area = document.getElementById('printArea');
       if (!area || !APP_STATE.generatedData) {
@@ -1051,18 +1264,60 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
         return;
       }
       const title = `${safeGetValue('subjectName', 'Soal')}_${APP_STATE.activeTab}`;
-      const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' "+
-            "xmlns:w='urn:schemas-microsoft-com:office:word' "+
-            "xmlns='http://www.w3.org/TR/REC-html40'>"+
-            "<head><meta charset='utf-8'><title>Dokumen</title><style>"+
-            "@page WordSection1 { size: 595.3pt 841.9pt; margin: 36.0pt 36.0pt 36.0pt 36.0pt; mso-header-margin: 35.4pt; mso-footer-margin: 35.4pt; } "+
-            "div.WordSection1 { page: WordSection1; } "+
-            "body { font-family: 'Calibri', Arial, sans-serif; font-size: 12pt; } "+
-            ".font-arab { font-family: 'Traditional Arabic', serif; font-size: 16pt; direction: rtl; text-align: right; } "+
-            ".font-indo { font-family: 'Calibri', sans-serif; font-size: 12pt; } "+
-            "table { border-collapse: collapse; width: 100%; } "+
-            "td, th { border: 1px solid #999; padding: 4px; } "+
-            "</style></head><body><div class='WordSection1'>";
+
+      // Styling Lengkap Khusus Microsoft Word agar Margin Narrow & Font Arab Tidak Pecah
+      const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office'
+xmlns:w='urn:schemas-microsoft-com:office:word'
+xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+<meta charset='utf-8'>
+<title>${title}</title>
+<style>
+@page Section1 {
+  size: 595.3pt 841.9pt; /* A4 */
+  margin: 36.0pt 36.0pt 36.0pt 36.0pt; /* Narrow 12.7mm = 0.5 in = 36 pt */
+  mso-header-margin: 20.0pt;
+  mso-footer-margin: 20.0pt;
+  mso-paper-source: 0;
+}
+div.Section1 { page: Section1; }
+body {
+  font-family: 'Calibri', 'Inter', Arial, sans-serif;
+  font-size: 12pt;
+  line-height: 1.35;
+}
+.font-arab {
+  font-family: 'Traditional Arabic', 'Amiri', serif !important;
+  font-size: 16pt !important;
+  line-height: 1.65 !important;
+  direction: rtl;
+  text-align: right;
+}
+.font-indo {
+  font-family: 'Calibri', sans-serif !important;
+  font-size: 12pt !important;
+  line-height: 1.35 !important;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+table.table-kop td, table.table-kop th {
+  border: 1pt solid #000;
+  padding: 4pt 6pt;
+  font-size: 11pt;
+}
+table.table-bs th, table.table-bs td {
+  border: 1pt solid #000;
+  padding: 4pt 6pt;
+}
+.avoid-break {
+  page-break-inside: avoid;
+}
+</style>
+</head>
+<body>
+<div class='Section1'>`;
       const footer = "</div></body></html>";
       const sourceHTML = header + area.innerHTML + footer;
       const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
@@ -1074,7 +1329,7 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
       document.body.removeChild(fileDownload);
     });
 
-    // Generator Fallback Data Contoh Cepat (Opsi Arab: أ ، ب ، ج ، د ، هـ)
+    // Generator Fallback Data Contoh Sesuai Template Asli
     function generateFallbackExamData(cfg) {
       const pg = [];
       const arabicOptions = [
@@ -1088,31 +1343,31 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
       for (let i = 1; i <= 15; i++) {
         pg.push({
           no: i,
-          question_arab: `مَا هُوَ التَّعْرِيْفُ الصَّحِيْحُ لِلْكَلِمَةِ فِي اللُّغَةِ العَرَبِيَّةِ فِي الجُمْلَةِ رَقْم (${i})؟`,
-          question_indo: `Apakah definisi yang tepat mengenai pembagian kata dalam tata bahasa Arab pada butir nomor (${i})?`,
+          question: `مَا هُوَ التَّعْرِيْفُ الصَّحِيْحُ لِلْكَلِمَةِ فِي اللُّغَةِ العَرَبِيَّةِ فِي الجُمْلَةِ رَقْم (${i})؟`,
+          question_indo: `Apakah definisi kata dalam bahasa Arab pada nomor (${i})?`,
           options: arabicOptions,
           answer: "أ",
-          indicator: `Mengidentifikasi jenis kata bahasa Arab nomor ${i}`
+          indicator: `Mengidentifikasi jenis kata bahasa Arab butir nomor ${i}`
         });
       }
       const bs = [];
       for (let i = 1; i <= 10; i++) {
         bs.push({
           no: i,
-          statement_arab: `الفِعْلُ المَاضِي هُوَ مَا دَلَّ عَلَى حَدَثٍ وَقَعَ قَبْلَ زَمَنِ التَّكَلُّمِ (${i}).`,
-          statement_indo: `Fi'il Madhi adalah kata kerja yang menunjukkan terjadinya suatu perbuatan sebelum waktu berbicara (${i}).`,
+          statement: `الفِعْلُ المَاضِي هُوَ مَا دَلَّ عَلَى حَدَثٍ وَقَعَ قَبْلَ زَمَنِ التَّكَلُّمِ (${i}).`,
+          statement_indo: `Fi'il Madhi adalah kata kerja yang terjadi sebelum waktu berbicara (${i}).`,
           answer: i % 2 === 0 ? "✓" : "✘",
-          indicator: `Menentukan kebenaran kaidah fi'il madhi ${i}`
+          indicator: `Menentukan kaidah fi'il madhi butir ke-${i}`
         });
       }
       const esai = [];
       for (let i = 1; i <= 5; i++) {
         esai.push({
           no: i,
-          question_arab: `اُكْتُبْ ثَلَاثَ جُمَلٍ مُفِيْدَةٍ تَتَضَمَّنُ فِعْلًا وَفَاعِلًا وَمَفْعُوْلًا بِهِ (${i})!`,
-          question_indo: `Tuliskan tiga kalimat sempurna (jumlah mufidah) yang tersusun atas fi'il, fa'il, dan maf'ul bih (${i})!`,
+          question: `اُكْتُبْ ثَلَاثَ جُمَلٍ مُفِيْدَةٍ تَتَضَمَّنُ فِعْلًا وَفَاعِلًا وَمَفْعُوْلًا بِهِ (${i})!`,
+          question_indo: `Tuliskan 3 kalimat sempurna fi'il, fa'il, dan maf'ul bih (${i})!`,
           answer: `Kunci: Menuliskan susunan jumlah fi'liyyah yang tersusun dari fi'il, fa'il, dan maf'ul bih dengan i'rab harakat yang benar.`,
-          indicator: `Menyusun jumlah fi'liyyah yang sempurna nomor ${i}`
+          indicator: `Menyusun jumlah fi'liyyah yang sempurna butir ${i}`
         });
       }
       const kisi = [];
@@ -1126,7 +1381,7 @@ Kembalikan HANYA format JSON valid tanpa tanda markdown apapun:
         });
       }
       return {
-        meta: { subject: cfg.subject, grade: cfg.grade, year: "2026/2027", semester: "1", time: "120 Menit" },
+        meta: { subject: cfg.subject, grade: cfg.grade, year: "٢٠٢٦/٢٠٢٧", semester: "الأَوَّلُ", time: "١٢٠ دَقِيْقَة" },
         pg, bs, esai, kisi_kisi: kisi,
         analisis_kualitatif: {
           kaidah_materi: "Materi sangat relevan dengan kurikulum bahasa Arab dan silabus PSAS 2026/2027.",
